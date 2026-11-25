@@ -1,0 +1,10 @@
+.frame{
+  position:relative;padding:12px 12px 28px;
+  border:var(--line) solid var(--ink);border-radius:var(--radius-box);
+  background:color-mix(in oklab,var(--paper-light) 60%,transparent);
+  box-shadow:var(--inner-line);
+}
+.frame-label{
+  position:absolute;left:0;right:0;bottom:7px;text-align:center;
+  font:var(--size-label)/1 var(--font-label);letter-spacing:.14em;color:var(--ink-soft);
+}

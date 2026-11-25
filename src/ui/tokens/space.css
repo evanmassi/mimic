@@ -1,0 +1,9 @@
+:root {
+  --radius-box: 10px;
+  --radius-control: 6px;
+  --line: 2px;
+  --inner-line: inset 0 0 0 3px var(--paper), inset 0 0 0 4px var(--ink-faint);
+  --gap: 12px;
+  --dot: 18px;
+  --page-width: 430px;
+}

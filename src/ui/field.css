@@ -1,0 +1,8 @@
+.field{display:block;flex:1}
+.field-input{
+  width:100%;box-sizing:border-box;padding:10px 12px;
+  font:var(--size-value) var(--font-value);color:var(--ink);
+  background:var(--paper-light);border:var(--line) solid var(--ink-soft);border-radius:var(--radius-control);
+  outline:none;resize:none;
+}
+.field-input:focus{border-color:var(--ink)}

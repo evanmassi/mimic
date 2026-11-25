@@ -1,0 +1,17 @@
+.btn{
+  font:var(--size-small)/1.2 var(--font-label);letter-spacing:var(--track-label);
+  color:var(--ink);background:var(--paper-light);
+  border:var(--line) solid var(--ink);border-radius:var(--radius-control);
+  box-shadow:inset 0 0 0 2px var(--paper-light),inset 0 0 0 3px var(--ink-faint);
+  padding:8px 12px;cursor:pointer;touch-action:manipulation;
+  transition:transform 80ms,background-color 160ms,color 160ms;
+}
+.btn:active{transform:scale(.95)}
+.btn:disabled{opacity:.35;cursor:default}
+.btn[data-tone="blood"]{border-color:var(--blood);color:var(--blood)}
+.btn[data-tone="verdant"]{border-color:var(--verdant);color:var(--verdant)}
+.btn[data-tone="arcane"]{border-color:var(--arcane);color:var(--arcane)}
+.btn[data-tone="gold"]{border-color:var(--gold);color:var(--gold)}
+.btn[data-tone="mana"]{border-color:var(--mana-deep);color:var(--mana-deep);box-shadow:inset 0 0 0 2px var(--paper-light),inset 0 0 8px var(--mana-glow)}
+.btn[data-chosen="on"]{background:var(--ink);color:var(--ink-on-dark);box-shadow:none}
+.btn[data-tone="arcane"][data-chosen="on"]{background:var(--arcane);color:var(--ink-on-dark)}

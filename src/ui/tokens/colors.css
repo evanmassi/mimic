@@ -1,0 +1,48 @@
+:root {
+  /* parchment */
+  --paper: #efe3c6;
+  --paper-light: #f7eedb;
+  --paper-deep: #e4d2a8;
+  --paper-shade: #d9c59a;
+  --leather: #1a140e;
+
+  /* ink */
+  --ink: #2b2118;
+  --ink-soft: #6b5a45;
+  --ink-faint: rgba(107, 90, 69, 0.35);
+  --ink-on-dark: #fff8e8;
+
+  /* blood: damage, conditions */
+  --blood: #8a1c1c;
+  --blood-bright: #b3443a;
+  --blood-deep: #7d1d17;
+
+  /* verdant: healing */
+  --verdant: #3e6b3a;
+
+  /* arcane: temp HP, values changed by effects */
+  --arcane: #3f6e8c;
+  --arcane-light: #4f7fa0;
+
+  /* gold: spell slots, resources */
+  --gold: #9a6b12;
+
+  /* mana: spell slots */
+  --mana: #1d3a9e;
+  --mana-light: #4f86e6;
+  --mana-deep: #0b1650;
+  --mana-core: #b9d4ff;
+  --mana-glow: rgba(60, 110, 230, 0.7);
+
+  /* holy, life, doom: feature uses and death saves */
+  --holy-light: #ffe9a8;
+  --life-glow: rgba(120, 200, 110, 0.6);
+  --doom: #120607;
+
+  /* night: long rest */
+  --night: #2a3550;
+  --night-deep: #0e1220;
+  --star: #f3e6b8;
+
+  --shadow-hud: rgba(0, 0, 0, 0.32);
+}

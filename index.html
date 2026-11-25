@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#efe3c6">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Mimic</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/favicon-64.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-180.png">
+<link rel="stylesheet" href="src/ui/index.css">
+<link rel="stylesheet" href="src/styles/app.css">
+</head>
+<body>
+
+<div class="page">
+  <header class="hud" id="hud"></header>
+  <main class="sheet" id="main"></main>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="drawer-back" id="drawerback"></div>
+  <div class="drawer-panel">
+    <div class="drawer-head"><b class="drawer-title" id="drawertitle"></b><button id="drawerclose"></button></div>
+    <div class="drawer-body" id="drawerbody"></div>
+  </div>
+</div>
+
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

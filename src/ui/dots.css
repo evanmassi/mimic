@@ -1,0 +1,34 @@
+.dots{display:inline-flex;flex-wrap:wrap;gap:5px;align-items:center;--dot-on:var(--ink)}
+.dots[data-feel="holy"]{--dot-on:var(--gold)}
+.dots[data-feel="life"]{--dot-on:var(--verdant)}
+.dots[data-feel="death"]{--dot-on:var(--blood-deep)}
+.dots[data-feel="weary"]{--dot-on:var(--blood-bright)}
+.dot{
+  width:var(--dot);height:var(--dot);flex:none;padding:0;cursor:pointer;
+  border:1.5px solid var(--ink);border-radius:50%;background:var(--paper-light);
+  transition:background-color 140ms,transform 80ms,box-shadow 200ms;touch-action:manipulation;
+}
+.dot:active{transform:scale(.85)}
+.dot:disabled{cursor:default}
+.dot:disabled:active{transform:none}
+.dot[data-on="on"]{background:var(--dot-on);border-color:var(--dot-on)}
+
+.dots[data-feel="mana"] .dot{
+  border-color:var(--mana-deep);
+  background:radial-gradient(circle at 50% 60%,color-mix(in oklab,var(--mana) 14%,var(--paper-light)),var(--paper-light));
+}
+.dots[data-feel="mana"] .dot[data-on="on"]{
+  border-color:var(--mana-deep);
+  background:radial-gradient(circle at 35% 30%,var(--mana-core) 0,var(--mana-light) 22%,var(--mana) 60%,var(--mana-deep) 100%);
+  box-shadow:0 0 5px var(--mana-glow),inset 0 0 3px var(--mana-core);
+  animation:mana-breathe 2.8s ease-in-out infinite;animation-delay:calc(var(--i) * -0.45s);
+}
+
+@keyframes mana-breathe{
+  0%,100%{box-shadow:0 0 3px var(--mana-glow),inset 0 0 3px var(--mana-core)}
+  50%{box-shadow:0 0 10px var(--mana-glow),0 0 2px var(--mana-core),inset 0 0 4px var(--mana-core)}
+}
+
+@media (prefers-reduced-motion: reduce){
+  .dots[data-feel="mana"] .dot[data-on="on"]{animation:none}
+}

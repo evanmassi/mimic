@@ -1,0 +1,16 @@
+:root {
+  --font-heading: "Mr Eaves Small Caps", "Palatino Linotype", Georgia, serif;
+  --font-label: "Scaly Sans Caps", "Palatino Linotype", Georgia, serif;
+  --font-value: "Scaly Sans", "Palatino Linotype", Georgia, serif;
+  --font-body: "Bookinsanity", "Palatino Linotype", Georgia, serif;
+
+  --size-title: 30px;
+  --size-heading: 18px;
+  --size-big: 30px;
+  --size-value: 17px;
+  --size-body: 14px;
+  --size-small: 12px;
+  --size-label: 10px;
+
+  --track-label: 0.08em;
+}

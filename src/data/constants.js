@@ -1,0 +1,23 @@
+export const APP_VERSION = "0.1.0";
+
+export const CHARACTER_KEY = "mimic.character.v1";
+export const PLAY_KEY = "mimic.play.v1";
+export const NOTES_KEY = "mimic.notes.v1";
+
+export const HP_DRAG_FULL_SWIPE = 0.6;
+export const HP_DRAG_TAP_PX = 6;
+export const DRAWER_CLOSE_MS = 220;
+export const DEATH_SAVE_COUNT = 3;
+export const DRAW_LINE_WIDTH = 2.2;
+export const HIT_BUZZ_MS = [30, 40, 30];
+export const SCORE_MIN = 1;
+export const SCORE_MAX = 30;
+export const SPELL_RESULT_LIMIT = 60;
+export const SPELL_LEVELS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+export const HOMEMADE_SPELL_LEVEL = 1;
+export const MAX_SPELL_LEVEL = 9;
+export const ATTACK_ABILITIES = ["str", "dex"];
+export const NEW_ATTACK = {name: "New attack", ability: "str", magicBonus: 0, damageDice: "1d6", damageBonus: 0, damageType: "B"};
+
+export const COINS = ["cp", "sp", "ep", "gp", "pp"];
+export const RECHARGE_LABEL = {short: "short rest", long: "long rest"};
