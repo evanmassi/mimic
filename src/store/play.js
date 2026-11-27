@@ -28,7 +28,9 @@ export function setExhaustion(level){
 
 export const setDeathSaves = (kind, count) => edit({deathSaves: {...state.play.deathSaves, [kind]: count}});
 export const setHitDiceSpent = count => edit({hitDiceSpent: count});
-export const setSpent = (id, count) => edit({spent: {...state.play.spent, [id]: count}});
+const setSpent = (id, spent) => edit({spent: {...state.play.spent, [id]: spent}});
+
+export const toggleUse = (id, index) => setSpent(id, toggled(state.play.spent[id] || [], index));
 
 const spentSlots = level => state.play.slotsSpent[level] || [];
 const setSpentSlots = (level, spent) => edit({slotsSpent: {...state.play.slotsSpent, [level]: spent}});
@@ -47,6 +49,10 @@ export function spendPool(feature, amount, isOnSelf){
   const used = Math.min(amount, left);
   const next = {...state.play, spent: {...state.play.spent, [feature.id]: (state.play.spent[feature.id] || 0) + used}};
   commit(isOnSelf ? healed(next, used, currentMax()) : next);
+}
+
+export function restorePool(feature, amount){
+  setSpent(feature.id, Math.max(0, (state.play.spent[feature.id] || 0) - amount));
 }
 
 export const shortRest = () => commit(afterShortRest(state.character, state.play));

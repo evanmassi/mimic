@@ -92,7 +92,7 @@ const assets = read(at("sw.js")).match(/const ASSETS = \[([\s\S]*?)\];/)[1];
 const precached = [...assets.matchAll(/"\.\/([^"]*)"/g)].map(match => match[1]);
 const shipped = ["", "index.html", "manifest.json"].concat([
   ...filesUnder(at("src"), ".js"), ...filesUnder(at("src"), ".css"),
-  ...filesUnder(at("fonts"), ".otf"), ...filesUnder(at("icons"), ".png")
+  ...filesUnder(at("fonts"), ".otf"), ...filesUnder(at("icons"), ".png"), ...filesUnder(at("art"), ".webp")
 ].map(relative));
 equal("every shipped file is precached", shipped.filter(file => !precached.includes(file)), []);
 equal("every precached file exists", precached.filter(file => !shipped.includes(file)), []);

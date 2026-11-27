@@ -2,6 +2,8 @@ const CACHE = "mimic-v1";
 
 const ASSETS = [
   "./", "./index.html", "./manifest.json",
+  "./art/candle.webp",
+  "./art/skull.webp",
   "./src/data/abilities.js",
   "./src/data/conditions.js",
   "./src/data/constants.js",
@@ -22,6 +24,7 @@ const ASSETS = [
   "./src/store/state.js",
   "./src/store/storage.js",
   "./src/styles/app.css",
+  "./src/styles/conditions.css",
   "./src/ui/button.css",
   "./src/ui/button.js",
   "./src/ui/dots.css",
@@ -45,7 +48,6 @@ const ASSETS = [
   "./src/views/combat.js",
   "./src/views/controls.js",
   "./src/views/dom.js",
-  "./src/views/drawers/conditionDrawer.js",
   "./src/views/drawers/drawer.js",
   "./src/views/drawers/hpDrawer.js",
   "./src/views/drawers/restDrawer.js",

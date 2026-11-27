@@ -40,9 +40,18 @@ const activeEffects = (character, play) => character.features
 export const armorClass = (character, play) =>
   activeEffects(character, play).reduce((ac, effects) => ac + (effects.acBonus || 0), character.armorClass);
 
+const effectConditions = (character, play) => activeEffects(character, play).flatMap(effects => effects.conditions || []);
+const zeroHpConditions = play => play.hp === 0 ? CONDITIONS.filter(condition => condition.isAtZeroHp).map(condition => condition.key) : [];
+
 export function activeConditions(character, play){
-  const keys = new Set(play.conditions.concat(activeEffects(character, play).flatMap(effects => effects.conditions || [])));
+  const keys = new Set([...play.conditions, ...effectConditions(character, play), ...zeroHpConditions(play)]);
   return CONDITIONS.filter(condition => keys.has(condition.key));
+}
+
+export function conditionCause(character, play, key){
+  if(play.conditions.includes(key)) return null;
+  if(zeroHpConditions(play).includes(key)) return "zeroHp";
+  return effectConditions(character, play).includes(key) ? "feature" : null;
 }
 
 export function speed(character, play){

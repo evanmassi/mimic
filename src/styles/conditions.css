@@ -1,0 +1,134 @@
+[data-condition="blinded"]{--cond:var(--leather);--glyph:var(--glyph-blinded)}
+[data-condition="charmed"]{--cond:var(--charm);--glyph:var(--glyph-charmed)}
+[data-condition="deafened"]{--cond:var(--muffle);--glyph:var(--glyph-deafened)}
+[data-condition="frightened"]{--cond:var(--fear);--glyph:var(--glyph-frightened)}
+[data-condition="grappled"]{--cond:var(--iron);--glyph:var(--glyph-grappled)}
+[data-condition="incapacitated"]{--cond:var(--ink-soft);--glyph:var(--glyph-incapacitated)}
+[data-condition="invisible"]{--cond:var(--arcane);--glyph:var(--glyph-invisible)}
+[data-condition="paralyzed"]{--cond:var(--hold);--glyph:var(--glyph-paralyzed)}
+[data-condition="petrified"]{--cond:var(--stone-ink);--glyph:var(--glyph-petrified)}
+[data-condition="poisoned"]{--cond:var(--venom);--glyph:var(--glyph-poisoned)}
+[data-condition="prone"]{--cond:var(--earth);--glyph:var(--glyph-prone)}
+[data-condition="restrained"]{--cond:var(--rope);--glyph:var(--glyph-restrained)}
+[data-condition="stunned"]{--cond:var(--gold);--glyph:var(--glyph-stunned)}
+[data-condition="unconscious"]{--cond:var(--night);--glyph:var(--glyph-unconscious)}
+[data-condition="concentrating"]{--cond:var(--mana);--glyph:var(--glyph-concentrating)}
+
+.tag[data-condition]{position:relative;isolation:isolate}
+.tag[data-condition]::before{
+  content:"";display:inline-block;width:11px;height:11px;margin:0 4px -1px -3px;
+  background:currentColor;mask:var(--glyph) center/contain no-repeat;
+}
+.tag[data-condition]::after{content:"";position:absolute;z-index:-1;pointer-events:none}
+
+.tag[data-condition="blinded"]{margin-right:8px;color:var(--paper-light);background:var(--leather)}
+.tag[data-condition="blinded"]::after{
+  top:2px;bottom:2px;right:-10px;width:12px;background:var(--leather);transform-origin:0 50%;
+  clip-path:polygon(0 30%,100% 0,100% 28%,35% 50%,100% 72%,100% 100%,0 70%);animation:cond-flutter 3s ease-in-out infinite;
+}
+
+.tag[data-condition="charmed"]::before{animation:cond-beat 1.6s ease-in-out infinite}
+
+.tag[data-condition="deafened"]{letter-spacing:.16em;background:var(--paper-deep)}
+
+.tag[data-condition="frightened"]{animation:cond-tremble 3.2s linear infinite}
+
+.tag[data-condition="grappled"]::after{
+  inset:-2px;border-radius:14px;
+  background:var(--texture-chain) 0 0/7px 5px repeat-x,var(--texture-chain) 3.5px 100%/7px 5px repeat-x;
+}
+
+.tag[data-condition="incapacitated"]{color:var(--ink);background:var(--paper-shade);animation:cond-sag 4s ease-in-out infinite}
+.tag[data-condition="incapacitated"]::before{color:var(--ink-soft)}
+
+.tag[data-condition="invisible"]{
+  overflow:hidden;border-style:dotted;background:transparent;color:color-mix(in oklab,var(--arcane) 75%,var(--ink));
+}
+.tag[data-condition="invisible"]::after{
+  inset:0;animation:cond-sheen 4s ease-in-out infinite;
+  background:linear-gradient(100deg,transparent 35%,color-mix(in oklab,var(--arcane-light) 40%,transparent) 50%,transparent 65%) 150% 0/300% 100% no-repeat;
+}
+
+.tag[data-condition="paralyzed"]::after{
+  left:12%;right:12%;top:-5px;height:7px;opacity:0;background:var(--hold-light);animation:cond-crackle 2.6s linear infinite;
+  clip-path:polygon(0 60%,15% 0,30% 70%,45% 10%,60% 80%,75% 20%,90% 70%,100% 40%,100% 62%,90% 100%,75% 48%,60% 100%,45% 38%,30% 96%,15% 30%,0 88%);
+}
+
+.tag[data-condition="petrified"]{border-radius:4px;background:var(--texture-grain),var(--stone)}
+.tag[data-condition="petrified"]::after{inset:0;background:var(--texture-crack) center/100% 100% no-repeat}
+
+.tag[data-condition="poisoned"]::after{
+  bottom:-3px;right:26%;width:5px;height:7px;background:var(--venom-light);transform-origin:50% 0;
+  border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;animation:cond-drip 2.8s ease-in infinite;
+}
+
+.tag[data-condition="prone"]{rotate:5deg;transform-origin:0 100%}
+.tag[data-condition="prone"]::after{
+  left:6%;right:-6%;bottom:-6px;height:5px;border-radius:50%;background:radial-gradient(closest-side,var(--ink-faint),transparent);
+}
+
+.tag[data-condition="restrained"]{padding:2px 15px}
+.tag[data-condition="restrained"]::after{
+  inset:-3px 0;background:var(--texture-rope) 5px 0/5px 100% no-repeat,var(--texture-rope) calc(100% - 5px) 0/5px 100% no-repeat;
+}
+
+.tag[data-condition="stunned"]{padding-left:13px}
+.tag[data-condition="stunned"]::after{
+  content:"✦ ✦";left:5px;top:50%;width:21px;margin-top:-10px;font:7px/20px serif;color:var(--gold);
+  text-align:justify;text-align-last:justify;animation:cond-orbit 2.4s linear infinite;
+}
+
+.tag[data-condition="unconscious"]{color:var(--star);background:var(--texture-grain),var(--night)}
+.tag[data-condition="unconscious"]::after{
+  content:"z";right:-3px;top:-9px;font:12px/1 var(--font-heading);color:var(--night);
+  text-shadow:0 0 3px var(--paper-light);animation:cond-zee 3s ease-out infinite;
+}
+
+.tag[data-condition="concentrating"]{animation:cond-focus 3s ease-in-out infinite}
+
+@keyframes cond-flutter{0%,100%{rotate:0deg}50%{rotate:8deg}}
+@keyframes cond-beat{0%,45%,100%{scale:1}10%,30%{scale:1.3}20%{scale:1.05}}
+@keyframes cond-tremble{
+  0%,84%,100%{translate:0 0}
+  86%{translate:-1px 0}
+  89%{translate:1px .5px}
+  92%{translate:-1px -.5px}
+  95%{translate:1px 0}
+}
+@keyframes cond-sag{0%,100%{translate:0 0}50%{translate:0 1.5px}}
+@keyframes cond-sheen{0%,55%{background-position:150% 0}100%{background-position:-50% 0}}
+@keyframes cond-crackle{
+  0%,68%,100%{opacity:0}
+  70%,77%{opacity:1}
+  73%,82%{opacity:.1}
+  80%{opacity:.9}
+}
+@keyframes cond-drip{
+  0%{opacity:1;scale:0;translate:0 0}
+  45%{scale:1;translate:0 0}
+  60%{translate:0 1px}
+  85%{opacity:0;translate:0 12px}
+  100%{opacity:0;translate:0 12px}
+}
+@keyframes cond-orbit{to{rotate:360deg}}
+@keyframes cond-zee{
+  0%{opacity:0;scale:.6;translate:0 4px}
+  30%{opacity:1}
+  100%{opacity:0;scale:1.2;translate:6px -8px}
+}
+@keyframes cond-focus{
+  0%,100%{box-shadow:0 0 2px var(--mana-glow)}
+  50%{box-shadow:0 0 9px 1px var(--mana-glow)}
+}
+
+.tag[data-condition][data-on="off"]{
+  padding:2px 9px;margin-right:0;rotate:0deg;animation:none;box-shadow:none;
+  color:var(--ink-soft);border-color:var(--ink-faint);background:var(--paper-light);
+}
+.tag[data-condition][data-on="off"]::before{color:var(--cond);animation:none}
+.tag[data-condition][data-on="off"]::after{display:none}
+.tag[data-locked="on"]{cursor:default}
+
+@media (prefers-reduced-motion: reduce){
+  .tag[data-condition],.tag[data-condition]::before,.tag[data-condition]::after{animation:none}
+}

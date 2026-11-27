@@ -1,4 +1,4 @@
-import {HP_DRAG_FULL_SWIPE} from "../data/constants.js";
+import {HP_DRAG_FULL_SWIPE, DEATH_SAVE_COUNT} from "../data/constants.js";
 import {hpMax} from "./sheet.js";
 
 const NO_DEATH_SAVES = {successes: 0, failures: 0};
@@ -20,6 +20,14 @@ export function healed(play, amount, max){
 export const withTempHp = (play, amount) => ({...play, tempHp: Math.max(play.tempHp, amount)});
 
 export const adjusted = (play, delta, max) => delta < 0 ? damaged(play, -delta) : healed(play, delta, max);
+
+export const hpWear = (play, max) => 1 - Math.min(play.hp, max) / max;
+
+export function deathFate(play){
+  if(play.hp > 0) return "alive";
+  if(play.deathSaves.failures >= DEATH_SAVE_COUNT) return "dead";
+  return play.deathSaves.successes >= DEATH_SAVE_COUNT ? "stable" : "dying";
+}
 
 export function dragAmount(dx, width, play, max){
   if(!width) return 0;

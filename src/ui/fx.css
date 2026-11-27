@@ -4,10 +4,11 @@
 .fx[data-tone="verdant"]{--fx-color:var(--verdant)}
 .fx[data-tone="gold"]{--fx-color:var(--gold)}
 .fx[data-tone="mana"]{--fx-color:var(--mana)}
-.fx-bit{position:absolute;left:0;top:0}
-.fx-bit[data-part="text"],.fx-bit[data-part="heart"],
-.fx-bit[data-part="skull"],.fx-bit[data-part="die"],.fx-bit[data-part="word"]{transform:translate(-50%,-50%);white-space:nowrap}
-.fx-bit[data-part="night"],.fx-bit[data-part="vignette"],.fx-bit[data-part="darkness"],
+.fx-bit{position:absolute;left:0;top:0;--side:1}
+.fx-bit:nth-child(odd){--side:-1}
+.fx-bit[data-part="text"],.fx-bit[data-part="heart"],.fx-bit[data-part="die"],
+.fx-bit[data-part="word"],.fx-bit[data-part="star"],.fx-bit[data-part="zee"]{transform:translate(-50%,-50%);white-space:nowrap}
+.fx-bit[data-part="night"],.fx-bit[data-part="vignette"],.fx-bit[data-part="shade"],
 .fx-bit[data-part="glow"],.fx-bit[data-part="dim"]{position:fixed;inset:0}
 
 .fx-bit[data-part="drop"]{
@@ -80,36 +81,83 @@
   transform:rotate(calc(var(--i) * 360deg / var(--n)));animation:fx-ray 750ms ease-out
 }
 
-.fx-bit[data-part="heart"]{
-  font:30px/1 serif;color:var(--verdant);text-shadow:0 0 10px var(--life-glow);
-  animation:fx-heart 1100ms ease-out
+.fx-bit[data-part="heart"]{font:30px/1 serif}
+
+.fx-bit[data-part="candle"]{
+  width:28px;height:34px;margin:-17px 0 0 -14px;background:url("../../art/candle.webp") center/contain no-repeat;
+  filter:drop-shadow(0 0 6px var(--holy-glow));animation:fx-heart 1100ms ease-out
+}
+.fx[data-kind="stable"] .fx-bit[data-part="candle"]{
+  position:fixed;left:50%;top:40%;width:104px;height:128px;margin:-64px 0 0 -52px;
+  filter:drop-shadow(0 0 10px var(--holy-glow));animation:fx-settle 2000ms ease-out
 }
 .fx-bit[data-part="glow"]{
-  background:radial-gradient(circle at 50% 45%,var(--holy-light) 0,var(--life-glow) 35%,transparent 75%);
-  animation:fx-flash 1600ms ease-out
+  background:radial-gradient(circle at calc(50% - 14px) calc(40% - 40px),color-mix(in oklab,var(--holy-light) 70%,transparent) 0,
+    color-mix(in oklab,var(--holy-glow) 45%,transparent) 14%,transparent 42%);
+  animation:fx-bloom 1900ms ease-out
 }
-.fx[data-kind="stable"] .fx-bit[data-part="heart"]{position:fixed;left:50%;top:40%;font-size:84px;animation-duration:1600ms}
+.fx-bit[data-part="flame"]{
+  position:fixed;left:calc(50% - 14px);top:calc(40% - 40px);width:90px;height:90px;margin:-45px 0 0 -45px;border-radius:50%;
+  background:radial-gradient(closest-side,color-mix(in oklab,var(--holy-core) 90%,transparent) 0,var(--holy-glow) 40%,transparent 100%);
+  mix-blend-mode:screen;animation:fx-kindle 2000ms ease-out
+}
+.fx-bit[data-part="speck"]{
+  position:fixed;left:calc(50% - 14px);top:calc(40% - 52px);width:4px;height:4px;margin:-2px 0 0 -2px;border-radius:50%;
+  background:var(--holy-core);box-shadow:0 0 6px 2px var(--holy-glow);animation:fx-speck 1300ms ease-out
+}
 
 .fx-bit[data-part="skull"]{
-  font:36px/1 serif;color:var(--blood-deep);text-shadow:0 0 8px var(--blood-bright);
-  animation:fx-skull 1100ms ease-out
+  width:32px;height:36px;margin:-18px 0 0 -16px;background:url("../../art/skull.webp") center/contain no-repeat;
+  filter:drop-shadow(0 0 6px var(--blood-bright));animation:fx-skull 1100ms ease-out
 }
 .fx-bit[data-part="vignette"]{
   background:radial-gradient(ellipse at center,transparent 45%,var(--blood-deep) 130%);
   animation:fx-flash 750ms ease-out
 }
-.fx-bit[data-part="darkness"]{background:var(--doom);animation:fx-flash 2000ms ease-in-out}
+.fx-bit[data-part="shade"]{
+  background:radial-gradient(ellipse at 50% 42%,color-mix(in oklab,var(--doom) 40%,transparent) 0,
+    color-mix(in oklab,var(--doom) 88%,transparent) 42%,var(--doom) 80%);
+  animation:fx-shade 2300ms ease-in-out
+}
 .fx[data-kind="doom"] .fx-bit[data-part="skull"]{
-  position:fixed;left:50%;top:40%;font-size:110px;color:var(--paper-light);
-  text-shadow:0 0 20px var(--blood-bright),0 0 40px var(--blood-deep);animation:fx-doom 2000ms ease-in-out
+  position:fixed;left:50%;top:40%;width:112px;height:126px;margin:-63px 0 0 -56px;animation:fx-surface 2300ms ease-out
+}
+.fx-bit[data-part="fume"]{
+  position:fixed;left:50%;top:calc(40% + 56px);width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;
+  background:radial-gradient(closest-side,color-mix(in oklab,var(--ink-soft) 70%,transparent),transparent);animation:fx-fume 1700ms ease-out
 }
 
 .fx-bit[data-part="word"]{
-  position:fixed;left:50%;top:56%;font:var(--size-title) var(--font-heading);letter-spacing:.12em;
-  animation:fx-word 1800ms ease-in-out
+  position:fixed;left:50%;width:260px;height:80px;display:flex;align-items:center;justify-content:center;padding-bottom:20px;
+  font:var(--size-title)/1 var(--font-heading);background:center/contain no-repeat
 }
-.fx[data-kind="stable"] .fx-bit[data-part="word"]{color:var(--verdant);text-shadow:0 0 12px var(--paper-light)}
-.fx[data-kind="doom"] .fx-bit[data-part="word"]{color:var(--blood-bright);text-shadow:0 0 14px var(--doom)}
+.fx[data-kind="stable"] .fx-bit[data-part="word"]{
+  top:calc(40% + 96px);letter-spacing:.14em;background-image:var(--shape-banner);filter:drop-shadow(0 3px 4px var(--shadow-hud));
+  color:color-mix(in oklab,var(--verdant),var(--ink) 30%);text-shadow:0 1px 0 var(--paper-light);animation:fx-unfurl 1900ms ease-out
+}
+.fx[data-kind="doom"] .fx-bit[data-part="word"]{
+  top:calc(40% + 104px);letter-spacing:.18em;background-image:var(--shape-banner-torn);filter:drop-shadow(0 4px 6px var(--doom));
+  color:var(--paper-light);text-shadow:0 1px 0 var(--doom),0 0 6px var(--doom);animation:fx-tatter 2300ms ease-out
+}
+.fx-letter{display:inline-block;transform:translateY(var(--dy)) rotate(var(--rot))}
+.fx[data-kind="stable"] .fx-letter{mix-blend-mode:multiply}
+
+.fx-bit[data-part="glint"]{
+  width:calc(3px + var(--rand) * 5px);height:calc(4px + var(--rand) * 6px);margin:-3px 0 0 -3px;
+  clip-path:polygon(50% 0,100% 70%,30% 100%,0 40%);
+  background:linear-gradient(135deg,var(--ink-on-dark),color-mix(in oklab,var(--paper-shade) 60%,transparent));
+  animation:fx-shard 800ms cubic-bezier(.3,0,.8,.6)
+}
+.fx[data-kind="fall"] .fx-bit[data-part="glint"]{
+  width:calc(4px + var(--rand) * 9px);height:calc(5px + var(--rand) * 10px);animation:fx-burst 1150ms cubic-bezier(.15,.6,.4,1)
+}
+.fx-bit[data-part="flash"]{
+  width:calc(var(--w) + 24px);height:calc(var(--h) + 24px);margin:calc(var(--h) / -2 - 12px) 0 0 calc(var(--w) / -2 - 12px);
+  border-radius:16px;background:radial-gradient(closest-side,var(--ink-on-dark),transparent);animation:fx-flash 520ms ease-out
+}
+.fx[data-kind="fall"] .fx-bit[data-part="vignette"]{
+  background:radial-gradient(ellipse at center,transparent 28%,var(--blood-black) 125%);animation-duration:1700ms
+}
 
 .fx-bit[data-part="dim"]{background:var(--ink);animation:fx-dim 1100ms ease-in-out}
 .fx-bit[data-part="drip"]{
@@ -119,12 +167,70 @@
 
 .fx-bit[data-part="die"]{font:28px/1 serif;color:var(--ink);animation:fx-die 850ms cubic-bezier(.2,.7,.4,1)}
 
+.fx-bit[data-part="lid"]{
+  position:fixed;left:0;right:0;top:calc(var(--i) * 50vh);height:50vh;background:var(--leather);
+  opacity:.88;transform-origin:50% calc(var(--i) * 100%);animation:fx-lid 1000ms ease-in-out
+}
+.fx[data-kind="hearts"] .fx-bit[data-part="heart"]{
+  font-size:18px;color:var(--charm);text-shadow:0 0 6px var(--paper-light);animation:fx-hearts 1100ms ease-out
+}
+.fx[data-kind="hush"]{--fx-color:var(--muffle)}
+.fx[data-kind="focus"]{--fx-color:var(--mana-light)}
+.fx-bit[data-part="halo"]{
+  width:calc(var(--w) + 34px);height:calc(var(--h) + 34px);margin:calc(var(--h) / -2 - 17px) 0 0 calc(var(--w) / -2 - 17px);
+  border-radius:999px;border:2px solid var(--fx-color);animation:fx-halo 700ms ease-in
+}
+.fx[data-kind="focus"] .fx-bit[data-part="halo"]{box-shadow:0 0 10px var(--mana-glow),inset 0 0 6px var(--mana-glow)}
+.fx-bit[data-part="wisp"]{
+  width:5px;height:5px;margin:-2.5px 0 0 -2.5px;border-radius:50%;
+  background:var(--arcane-light);box-shadow:0 0 6px 1px var(--arcane-light);animation:fx-wisp 900ms ease-out
+}
+.fx[data-kind="dread"] .fx-bit[data-part="vignette"]{
+  background:radial-gradient(ellipse at center,transparent 35%,var(--fear) 140%);animation-duration:1200ms
+}
+.fx-bit[data-part="shackle"]{
+  width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;border:3px solid var(--iron);
+  animation:fx-clamp 520ms cubic-bezier(.6,0,.9,.6)
+}
+.fx-bit[data-part="cinch"]{
+  width:5px;height:calc(var(--h) + 10px);margin:calc(var(--h) / -2 - 5px) 0 0 -2.5px;background:var(--texture-rope);
+  animation:fx-clamp 520ms cubic-bezier(.6,0,.9,.6)
+}
+.fx-bit[data-part="bolt"]{
+  width:9px;height:18px;margin:-9px 0 0 -4.5px;background:var(--hold-light);
+  clip-path:polygon(45% 0,100% 0,60% 42%,95% 42%,15% 100%,40% 55%,5% 55%);animation:fx-jolt 650ms linear
+}
+.fx-bit[data-part="shard"]{
+  width:calc(4px + var(--rand) * 4px);height:calc(4px + var(--rand) * 4px);margin:-3px 0 0 -3px;background:color-mix(in oklab,var(--stone) 40%,var(--stone-ink));
+  clip-path:polygon(20% 0,100% 30%,70% 100%,0 70%);animation:fx-shard 900ms cubic-bezier(.4,0,.9,.6)
+}
+.fx-bit[data-part="bubble"]{
+  width:calc(5px + var(--rand) * 6px);aspect-ratio:1;margin:-4px 0 0 -4px;border-radius:50%;
+  border:1.5px solid var(--venom);background:color-mix(in oklab,var(--venom-light) 45%,transparent);
+  animation:fx-bubble 1000ms ease-out
+}
+.fx-bit[data-part="dust"]{
+  width:16px;height:16px;margin:calc(var(--h) / 2 - 8px) 0 0 -8px;border-radius:50%;
+  background:radial-gradient(closest-side,var(--ink-faint),transparent);animation:fx-dust 700ms ease-out
+}
+.fx-bit[data-part="star"]{font:14px/1 serif;color:var(--gold);text-shadow:0 0 4px var(--holy-light);animation:fx-daze 950ms ease-out}
+.fx-bit[data-part="zee"]{
+  font:calc(13px + var(--i) * 5px)/1 var(--font-heading);color:var(--night);text-shadow:0 0 4px var(--paper-light);
+  animation:fx-zee 1300ms ease-out
+}
+
 .fx[data-kind] .fx-bit[data-part]{animation-delay:var(--delay);animation-fill-mode:both}
 .fx[data-kind="mana"] .fx-bit[data-part="streak"],.fx[data-kind="mana"] .fx-bit[data-part="ember"]{animation-delay:20ms}
 .fx[data-kind="charge"] .fx-bit[data-part="flare"]{animation-delay:720ms}
 .fx[data-kind="charge"] .fx-bit[data-part="mote"]{animation-delay:calc(var(--rand) * 220ms)}
 .fx[data-kind="mana"] .fx-bit[data-part="wave"]{animation-delay:calc(var(--i) * 110ms)}
 .fx[data-kind="mana"] .fx-bit[data-part="wave"]:nth-child(3){border-width:1.5px;opacity:.6}
+.fx[data-kind="stable"] .fx-bit[data-part="speck"]{animation-delay:calc(700ms + var(--i) * 70ms)}
+.fx[data-kind="doom"] .fx-bit[data-part="fume"]{animation-delay:calc(520ms + var(--i) * 170ms)}
+.fx[data-kind="fall"] .fx-bit[data-part],.fx[data-kind="lids"] .fx-bit[data-part],.fx[data-kind="clamp"] .fx-bit[data-part],
+.fx[data-kind="bind"] .fx-bit[data-part],.fx[data-kind="thud"] .fx-bit[data-part]{animation-delay:0ms}
+.fx[data-kind="hush"] .fx-bit[data-part],.fx[data-kind="focus"] .fx-bit[data-part]{animation-delay:calc(var(--i) * 160ms)}
+.fx[data-kind="sleep"] .fx-bit[data-part="zee"]{animation-delay:calc(var(--i) * 320ms)}
 
 @keyframes fx-drip{
   0%{transform:translate(0,0) scale(.4);opacity:1}
@@ -211,19 +317,6 @@
   70%{rotate:0;opacity:1}
   100%{opacity:0;translate:0 14px}
 }
-@keyframes fx-doom{
-  0%{opacity:0;scale:.6}
-  30%{opacity:1;scale:1}
-  45%{rotate:-4deg}
-  55%{rotate:4deg}
-  70%{opacity:1;rotate:0}
-  100%{opacity:0;scale:1.15}
-}
-@keyframes fx-word{
-  0%{opacity:0;letter-spacing:.5em}
-  30%,70%{opacity:1;letter-spacing:.12em}
-  100%{opacity:0}
-}
 @keyframes fx-dim{
   0%,100%{opacity:0}
   40%{opacity:.18}
@@ -237,4 +330,121 @@
   0%{opacity:0;translate:0 0;rotate:0}
   20%{opacity:1}
   100%{opacity:0;translate:var(--dx) -46px;rotate:540deg}
+}
+@keyframes fx-lid{
+  0%,100%{transform:scaleY(0)}
+  40%,55%{transform:scaleY(1)}
+}
+@keyframes fx-hearts{
+  0%{opacity:0;scale:.4;translate:calc(var(--dx) / 2) calc(var(--h) / -2)}
+  20%{opacity:1;scale:1.2}
+  100%{opacity:0;scale:1;translate:var(--dx) calc(var(--h) / -2 - 50px)}
+}
+@keyframes fx-halo{
+  0%{opacity:0;scale:1.5}
+  30%{opacity:.8}
+  100%{opacity:0;scale:.9}
+}
+@keyframes fx-clamp{
+  0%{opacity:0;translate:calc(var(--side) * (var(--w) / 2 + 44px)) 0}
+  30%{opacity:1}
+  70%{opacity:1;scale:1;translate:calc(var(--side) * var(--w) / 2) 0}
+  80%{scale:1.3}
+  100%{opacity:0;scale:1;translate:calc(var(--side) * var(--w) / 2) 0}
+}
+@keyframes fx-jolt{
+  0%{opacity:0;transform:translate(calc((var(--rand) - .5) * var(--w)),calc(var(--side) * (var(--h) / 2 + 9px))) rotate(calc(90deg - var(--side) * 90deg))}
+  10%,30%,55%{opacity:1}
+  20%,42%{opacity:.15}
+  100%{opacity:0;transform:translate(calc((var(--rand) - .5) * var(--w)),calc(var(--side) * (var(--h) / 2 + 16px))) rotate(calc(90deg - var(--side) * 90deg))}
+}
+@keyframes fx-shard{
+  0%{opacity:1;transform:translate(calc(var(--dx) / 2),calc(var(--h) / 2)) rotate(0)}
+  100%{opacity:0;transform:translate(var(--dx),calc(var(--h) / 2 + 36px + var(--rand) * 34px)) rotate(240deg)}
+}
+@keyframes fx-bubble{
+  0%{opacity:0;transform:translate(calc(var(--dx) / 2),calc(var(--h) / -2)) scale(.3)}
+  20%{opacity:1}
+  100%{opacity:0;transform:translate(var(--dx),calc(var(--h) / -2 - 36px - var(--rand) * 24px)) scale(1.2)}
+}
+@keyframes fx-dust{
+  0%{opacity:.9;transform:translate(0,0) scale(.4)}
+  100%{opacity:0;transform:translate(calc(var(--side) * (var(--w) / 2 + var(--rand) * 22px)),-6px) scale(1.8)}
+}
+@keyframes fx-daze{
+  0%{opacity:0;transform:translate(-50%,-50%) translate(calc((var(--i) / (var(--n) - 1) - .5) * var(--w)),calc(var(--h) / -2)) rotate(0)}
+  25%{opacity:1}
+  100%{opacity:0;transform:translate(-50%,-50%) translate(calc((var(--i) / (var(--n) - 1) - .5) * var(--w) * .6),calc(var(--h) / -2 - 30px - var(--rand) * 14px)) rotate(200deg)}
+}
+@keyframes fx-wisp{
+  0%{opacity:0;transform:translate(calc((var(--rand) - .5) * var(--w)),calc(var(--side) * var(--h) / 2))}
+  25%{opacity:.9}
+  100%{opacity:0;transform:translate(calc((var(--rand) - .5) * var(--w) * 1.3),calc(var(--side) * (var(--h) / 2 + 26px)))}
+}
+@keyframes fx-zee{
+  0%{opacity:0;translate:calc(var(--w) / 2) 0}
+  25%{opacity:1}
+  100%{opacity:0;translate:calc(var(--w) / 2 + 22px) -48px}
+}
+@keyframes fx-bloom{0%{opacity:0}20%{opacity:.85}75%{opacity:.6}100%{opacity:0}}
+@keyframes fx-settle{
+  0%{opacity:0;transform:translateY(30px) scale(.85)}
+  22%{opacity:1;transform:translateY(-4px) scale(1.02)}
+  32%{transform:translateY(0) scale(1)}
+  82%{opacity:1;transform:translateY(0) scale(1)}
+  100%{opacity:0;transform:translateY(-10px) scale(1)}
+}
+@keyframes fx-kindle{
+  0%,14%{opacity:0;scale:.4}
+  22%{opacity:1;scale:1.35}
+  29%{opacity:.45;scale:.9}
+  36%{opacity:1;scale:1.18}
+  43%{opacity:.65;scale:1}
+  50%{opacity:.95;scale:1.06}
+  58%,82%{opacity:.85;scale:1}
+  100%{opacity:0;scale:1}
+}
+@keyframes fx-speck{
+  0%{opacity:0;transform:translate(calc(var(--dx) * .6),calc(var(--dy) * .4))}
+  25%{opacity:1}
+  100%{opacity:0;transform:translate(calc(var(--dx) * 1.5),calc(-80px - var(--rand) * 50px))}
+}
+@keyframes fx-shade{0%{opacity:0}22%,72%{opacity:.96}100%{opacity:0}}
+@keyframes fx-surface{
+  0%{opacity:0;transform:scale(1.2);filter:blur(8px) drop-shadow(0 0 0 transparent)}
+  30%{opacity:1;transform:scale(1);filter:blur(0) drop-shadow(0 0 18px var(--blood-deep))}
+  45%{rotate:0deg}
+  48%{rotate:-3deg}
+  51%{rotate:3deg}
+  54%{rotate:-1.5deg}
+  57%{rotate:0deg}
+  76%{opacity:1;transform:scale(1);filter:blur(0) drop-shadow(0 0 18px var(--blood-deep))}
+  100%{opacity:0;transform:scale(.94);filter:blur(2px) drop-shadow(0 0 0 transparent)}
+}
+@keyframes fx-fume{
+  0%{opacity:0;transform:translate(calc(var(--dx) * .5),0) scale(.5)}
+  30%{opacity:.7}
+  100%{opacity:0;transform:translate(calc(var(--dx) * 1.2),-130px) scale(2.6)}
+}
+@keyframes fx-unfurl{
+  0%,18%{opacity:0;transform:translate(-50%,-50%) scaleX(.15)}
+  34%{opacity:1;transform:translate(-50%,-50%) scaleX(1.06)}
+  42%{transform:translate(-50%,-50%) scaleX(.98)}
+  48%{transform:translate(-50%,-50%) scaleX(1)}
+  84%{opacity:1;transform:translate(-50%,-50%) scaleX(1)}
+  100%{opacity:0;transform:translate(-50%,-50%) translateY(-6px)}
+}
+@keyframes fx-tatter{
+  0%,24%{opacity:0;transform:translate(-50%,-50%) translateY(-14px) scaleY(.3)}
+  36%{opacity:1;transform:translate(-50%,-50%) translateY(2px) scaleY(1.06)}
+  44%{transform:translate(-50%,-50%) translateY(0) scaleY(.97) rotate(-1.5deg)}
+  54%{transform:translate(-50%,-50%) scaleY(1) rotate(1.2deg)}
+  64%{transform:translate(-50%,-50%) rotate(-.5deg)}
+  72%{transform:translate(-50%,-50%) rotate(0)}
+  82%{opacity:1;transform:translate(-50%,-50%)}
+  100%{opacity:0;transform:translate(-50%,-50%) translateY(10px)}
+}
+@keyframes fx-burst{
+  0%{opacity:1;transform:translate(calc((var(--rand) - .5) * var(--w)),0) rotate(0)}
+  100%{opacity:0;transform:translate(calc(var(--dx) * 2.4 + (var(--rand) - .5) * var(--w)),calc(var(--dy) * 1.4 + 80px)) rotate(calc(var(--rand) * 540deg))}
 }

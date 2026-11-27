@@ -16,6 +16,9 @@
   --blood: #8a1c1c;
   --blood-bright: #b3443a;
   --blood-deep: #7d1d17;
+  --blood-black: #1e0504;
+  --blood-glow: rgba(255, 80, 60, 0.55);
+  --ember: rgba(220, 60, 25, 0.7);
 
   /* verdant: healing */
   --verdant: #3e6b3a;
@@ -35,7 +38,11 @@
   --mana-glow: rgba(60, 110, 230, 0.7);
 
   /* holy, life, doom: feature uses and death saves */
+  --holy-core: #fff7dc;
   --holy-light: #ffe9a8;
+  --holy: #e2a62c;
+  --holy-deep: #7a4a0a;
+  --holy-glow: rgba(255, 190, 60, 0.6);
   --life-glow: rgba(120, 200, 110, 0.6);
   --doom: #120607;
 
@@ -43,6 +50,21 @@
   --night: #2a3550;
   --night-deep: #0e1220;
   --star: #f3e6b8;
+
+  /* conditions */
+  --charm: #9a2d5e;
+  --muffle: #5f5850;
+  --fear: #5a3f7a;
+  --iron: #3f454c;
+  --hold: #22616b;
+  --hold-light: #6fc3cf;
+  --stone: #bdb6aa;
+  --stone-ink: #3a3631;
+  --venom: #4a6a14;
+  --venom-light: #9cc23a;
+  --earth: #6e5232;
+  --rope: #7a5428;
+  --rope-light: #c9a26a;
 
   --shadow-hud: rgba(0, 0, 0, 0.32);
 }

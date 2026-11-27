@@ -100,15 +100,24 @@ section("Dragging the HP bar");
   equal("can't heal past max", play.dragAmount(300, 300, {hp: 90, tempHp: 0}, 100), 10);
   equal("can't drag below 0, counting temp HP", play.dragAmount(-1000, 300, {hp: 10, tempHp: 5}, 100), -15);
   equal("no width means no change", play.dragAmount(100, 0, p, 100), 0);
+  const nawe0 = nawe();
+  const zero = {...play.newPlay(nawe0), hp: 0};
+  equal("0 HP means unconscious, from 0 HP", [sheet.activeConditions(nawe0, zero).map(c => c.key), sheet.conditionCause(nawe0, zero, "unconscious")], [["unconscious"], "zeroHp"]);
+  equal("healed, it's gone", sheet.activeConditions(nawe0, {...zero, hp: 1}).map(c => c.key), []);
+  equal("wear is the share of HP lost", [play.hpWear({hp: 100}, 100), play.hpWear({hp: 25}, 100), play.hpWear({hp: 0}, 100)], [0, 0.75, 1]);
+  const down = saves => ({hp: 0, deathSaves: saves});
+  equal("fate follows the death saves", [play.deathFate({hp: 5, deathSaves: {successes: 0, failures: 3}}),
+    play.deathFate(down({successes: 1, failures: 2})), play.deathFate(down({successes: 3, failures: 1})), play.deathFate(down({successes: 2, failures: 3}))],
+    ["alive", "dying", "stable", "dead"]);
 }
 
 section("Rests");
 {
   const c = nawe();
   const tired = {...play.newPlay(c), hp: 20, tempHp: 4, hitDiceSpent: 8, exhaustion: 2, slotsSpent: {1: [0, 1, 3], 3: [1, 0]},
-    spent: {channelDivinity: 1, divineSense: 3, layOnHands: 40}, active: ["shellDefense"], deathSaves: {successes: 1, failures: 2}};
+    spent: {channelDivinity: [0], divineSense: [0, 2, 3], layOnHands: 40}, active: ["shellDefense"], deathSaves: {successes: 1, failures: 2}};
   const short = play.afterShortRest(c, tired);
-  equal("short rest brings back channel divinity only", short.spent, {divineSense: 3, layOnHands: 40});
+  equal("short rest brings back channel divinity only", short.spent, {divineSense: [0, 2, 3], layOnHands: 40});
   equal("short rest leaves HP and slots", [short.hp, short.slotsSpent], [20, {1: [0, 1, 3], 3: [1, 0]}]);
   const long = play.afterLongRest(c, tired);
   equal("long rest: full HP, no temp", [long.hp, long.tempHp], [106, 0]);
@@ -138,6 +147,10 @@ section("Older saves");
   localStorage.setItem(PLAY_KEY, JSON.stringify({...play.newPlay(nawe()), slotsSpent: {1: 2, 3: 0}}));
   hydrate();
   equal("slot counts from older saves load as orbs", state.play.slotsSpent, {1: [0, 1], 3: []});
+  localStorage.setItem(PLAY_KEY, JSON.stringify({...play.newPlay(nawe()), spent: {divineSense: 2, channelDivinity: 0, layOnHands: 15}}));
+  hydrate();
+  equal("use counts from older saves load as the rightmost orbs, pools stay amounts", state.play.spent,
+    {divineSense: [3, 2], channelDivinity: [], layOnHands: 15});
 }
 
 section("Store edits");
@@ -159,6 +172,10 @@ section("Store edits");
   equal("lay on hands on yourself spends and heals", [state.play.spent.layOnHands, state.play.hp], [5, 71]);
   playStore.spendPool(pool, 100, false);
   equal("a pool never spends past empty", state.play.spent.layOnHands, 50);
+  playStore.restorePool(pool, 5);
+  equal("points go back into the pool", state.play.spent.layOnHands, 45);
+  playStore.restorePool(pool, 100);
+  equal("a pool never fills past full", state.play.spent.layOnHands, 0);
   fresh();
   [1, 2, 3, 4, 5].forEach(() => playStore.spendSlot(1));
   equal("spending stops when slots run out, rightmost orb first", state.play.slotsSpent[1], [3, 2, 1, 0]);

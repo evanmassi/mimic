@@ -15,8 +15,6 @@ Open it at **https://evanmassi.github.io/mimic/**
   Things that only change on level-up (scores, proficiencies, class details) sit behind the Edit button so a stray
   tap can't change them.
 - Spell slots are glowing mana orbs you tap to spend or get back, each one on its own.
-- Every tap has its own little effect: blood when you're hit, sparkles when you heal, a heartbeat or a skull on death
-  saves, and a vibration on Android.
 - Tracks features: uses that come back on a rest, pools like Lay on Hands, switches like a Tortle's Shell Defense
   that change your AC and speed, and Divine Smite buttons that spend a slot.
 - Short and long rests bring back what they should.

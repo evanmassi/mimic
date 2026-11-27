@@ -26,6 +26,14 @@ are in `~/Pictures/DnD/Nawe_pg1-3.jpeg`. The app stays character-agnostic. Nawe 
   conditions and coins stay one tap. Edits happen in place on the sheet, not in bottom drawers.
 - **No sound for now.** Feedback is visual: whimsical, themed animation on taps, drags, damage and rests, plus a
   small vibration on Android.
+- **Condition chips look like what they are** (a blindfold, chains, rope, stone, dripping poison) and play a burst
+  when they land, drawn in CSS and inline SVG rather than images. The word always stays readable.
+- **The HP bar is blood in glass that wears as you're hurt:** it darkens point by point, cracks at six HP levels,
+  shatters at 0, then glows faint ember while dying, calm gold-green when stable, and goes to ash when dead.
+- **Death saves end with art, not glyphs:** a candle whose flame steadies under an old-map banner for Stable, a skull
+  under a torn blood-red banner for Dead. The art matches the app icon's style.
+- **Conditions are picked in a tray that unrolls inside the HUD** like a scroll, not a drawer, so nothing covers the
+  chips while their bursts play. A line under the chips gives the rules for the last one tapped.
 - **Every spell, without bundling closed text:** an Import spells feature reads a spell file Evan emails to himself
   and keeps it only on the phone. Mimic's repo stays openly licensed. *(Not built yet.)*
 - **Spells come from every openly licensed source** Open5e gathers (1,955 spells): the 2014 and 2024 SRDs, Level
@@ -45,12 +53,10 @@ are in `~/Pictures/DnD/Nawe_pg1-3.jpeg`. The app stays character-agnostic. Nawe 
 ## Next up
 
 - **Import spells** from a file (common homebrew formats and Open5e's), merged into search, tagged Imported.
-- **More whimsy:** the mimic chomps at 0 HP, themed condition chips, a campfire on short rest.
+- **More whimsy:** the mimic chomps at 0 HP, a campfire on short rest.
 - **Editing features and their trackers** in edit mode.
 - **Spell polish:** prepared-spell limit, a Cast button that spends a slot and starts Concentrating, an index of
   closed-book spells (name, level, school, classes only) so every official spell is at least searchable.
-- **Themed condition chips:** each one styled for what it is, but still saying the word. Hearts for Charmed, green
-  goop for Poisoned, and so on.
 - **Backstory and appearance,** from page 2 of the sheet.
 - **Backup export and import,** like Overload's.
 - **A new-character flow,** since the app is meant to work for any character.

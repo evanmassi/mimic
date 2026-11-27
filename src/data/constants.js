@@ -7,9 +7,16 @@ export const NOTES_KEY = "mimic.notes.v1";
 export const HP_DRAG_FULL_SWIPE = 0.6;
 export const HP_DRAG_TAP_PX = 6;
 export const DRAWER_CLOSE_MS = 220;
+export const TRAY_CLOSE_MS = 320;
 export const DEATH_SAVE_COUNT = 3;
 export const DRAW_LINE_WIDTH = 2.2;
 export const HIT_BUZZ_MS = [30, 40, 30];
+export const FALL_BUZZ_MS = [60, 40, 220];
+// PITFALL: each crack's along is where its drawing in --texture-crack-N starts, as a share of the bar's width.
+export const HP_CRACKS = [
+  {at: 0.18, along: 0.84}, {at: 0.32, along: 0.05}, {at: 0.46, along: 0.79},
+  {at: 0.6, along: 0.28}, {at: 0.74, along: 0.98}, {at: 0.88, along: 0.43}
+];
 export const SCORE_MIN = 1;
 export const SCORE_MAX = 30;
 export const SPELL_RESULT_LIMIT = 60;

@@ -1,8 +1,8 @@
-import {DEATH_SAVE_COUNT, HIT_BUZZ_MS} from "../data/constants.js";
-import {EXHAUSTION} from "../data/conditions.js";
-import {state, toggleEditing} from "../store/state.js";
-import {adjustHp, setDeathSaves, setExhaustion} from "../store/play.js";
-import {armorClass, speed, activeConditions} from "../rules/sheet.js";
+import {DEATH_SAVE_COUNT, HIT_BUZZ_MS, FALL_BUZZ_MS, TRAY_CLOSE_MS} from "../data/constants.js";
+import {CONDITIONS, EXHAUSTION} from "../data/conditions.js";
+import {state, toggleEditing, openConditionTray, closeConditionTray} from "../store/state.js";
+import {adjustHp, setDeathSaves, setExhaustion, toggleCondition} from "../store/play.js";
+import {armorClass, speed, activeConditions, conditionCause} from "../rules/sheet.js";
 import {signed} from "../rules/format.js";
 import {makeDots} from "../ui/dots.js";
 import {spawnFx, buzz} from "../ui/fx.js";
@@ -10,10 +10,10 @@ import {el} from "./dom.js";
 import {actionButton} from "./controls.js";
 import {makeHpBar} from "./hpBar.js";
 import {slotDots} from "./spells.js";
-import {openConditionDrawer} from "./drawers/conditionDrawer.js";
 import {openRestDrawer} from "./drawers/restDrawer.js";
 
-const shown = {hp: null, tempHp: null, ac: null};
+const CAUSE_NOTES = {feature: "From an active feature. ", zeroHp: "From dropping to 0 HP. "};
+const shown = {hp: null, tempHp: null, ac: null, conditions: null, isTrayOpen: false};
 
 function badge(className, value, label, isChanged){
   const box = el("div", className);
@@ -44,11 +44,12 @@ function celebrate(bar){
   if(shown.hp !== null){
     const change = hp + tempHp - shown.hp - shown.tempHp;
     const rect = bar.getBoundingClientRect();
+    const isFalling = hp === 0 && shown.hp > 0;
     if(change < 0){
-      bar.classList.add("hit");
-      spawnFx("blood", rect);
+      bar.classList.add(isFalling ? "shatter" : "hit");
+      spawnFx(isFalling ? "fall" : "blood", rect);
       spawnFx("number", rect, {tone: "blood", text: signed(change)});
-      buzz(HIT_BUZZ_MS);
+      buzz(isFalling ? FALL_BUZZ_MS : HIT_BUZZ_MS);
     }
     if(hp > shown.hp){
       bar.classList.add("healed");
@@ -79,22 +80,94 @@ function deathSaves(){
   return group;
 }
 
-function statusRow(){
+function conditionTag(condition, onPress){
+  const tag = el("button", "tag", condition.name);
+  tag.type = "button";
+  tag.dataset.condition = condition.key;
+  tag.addEventListener("click", onPress);
+  return tag;
+}
+
+function setExhaustionFromHud(level){
+  if(state.conditionTray) openConditionTray("exhaustion");
+  setExhaustion(level);
+}
+
+function statusRow(tray){
   const row = el("div", "hud-status");
   if(state.play.hp === 0) row.appendChild(deathSaves());
-  activeConditions(state.character, state.play).forEach(condition => {
-    const tag = el("button", "tag", condition.name);
-    tag.type = "button";
-    tag.addEventListener("click", openConditionDrawer);
+  const tags = activeConditions(state.character, state.play).map(condition => {
+    const tag = conditionTag(condition, () => openConditionTray(condition.key));
     row.appendChild(tag);
+    return {condition, tag};
   });
-  const add = el("button", "tag tag-add", "+ condition");
+  const add = el("button", "tag tag-add", tray ? "− condition" : "+ condition");
   add.type = "button";
-  add.addEventListener("click", openConditionDrawer);
+  add.dataset.open = tray ? "on" : "off";
+  add.addEventListener("click", () => tray ? rollUp(tray) : openConditionTray(null));
   const exhaustion = el("span", "hud-exhaustion");
-  exhaustion.append(el("span", "hud-mini-label", "exh"), makeDots(EXHAUSTION.length, state.play.exhaustion, setExhaustion, "weary"));
+  exhaustion.append(el("span", "hud-mini-label", "exh"), makeDots(EXHAUSTION.length, state.play.exhaustion, setExhaustionFromHud, "weary"));
   row.append(add, exhaustion);
-  return row;
+  return {row, tags};
+}
+
+function rollUp(tray){
+  if(tray.dataset.motion === "close") return;
+  tray.dataset.motion = "close";
+  setTimeout(closeConditionTray, TRAY_CLOSE_MS);
+}
+
+function trayRule(rule, causes){
+  const box = el("div", "tray-rule");
+  const condition = CONDITIONS.find(({key}) => key === rule);
+  const level = state.play.exhaustion;
+  let name = "Conditions";
+  let text = "Tap one to add it and see what it does.";
+  if(condition){
+    box.dataset.condition = condition.key;
+    name = condition.name;
+    text = (CAUSE_NOTES[causes[condition.key]] || "") + condition.effect;
+  }else if(rule === "exhaustion"){
+    name = level ? `Exhaustion ${level}` : "No exhaustion";
+    text = level ? EXHAUSTION.slice(0, level).join(". ") + "." : "Tap a dot to set the level.";
+  }
+  box.append(el("b", "tray-rule-name", name), el("span", "tray-rule-text", text));
+  return box;
+}
+
+function conditionTray(){
+  const active = activeConditions(state.character, state.play).map(({key}) => key);
+  const causes = Object.fromEntries(active.map(key => [key, conditionCause(state.character, state.play, key)]));
+  const tray = el("div", "tray");
+  tray.dataset.motion = shown.isTrayOpen ? "still" : "open";
+  tray.style.setProperty("--tray-close", TRAY_CLOSE_MS + "ms");
+  const head = el("div", "tray-head");
+  head.append(el("span", "tray-title", "Tap to add or remove"), actionButton("Close", {}, () => rollUp(tray)));
+  const chips = el("div", "tray-chips");
+  CONDITIONS.forEach(condition => {
+    const isLocked = Boolean(causes[condition.key]);
+    const chip = conditionTag(condition, () => {
+      openConditionTray(condition.key);
+      if(!isLocked) toggleCondition(condition.key);
+    });
+    chip.dataset.on = active.includes(condition.key) ? "on" : "off";
+    chip.dataset.locked = isLocked ? "on" : "off";
+    chips.appendChild(chip);
+  });
+  const body = el("div", "tray-body");
+  body.append(head, chips, trayRule(state.conditionTray.rule, causes));
+  const roll = el("div", "tray-roll");
+  roll.appendChild(body);
+  tray.append(el("div", "tray-lip"), roll, el("div", "tray-rod"));
+  return {tray, roll};
+}
+
+function announce(tags){
+  if(shown.conditions !== null){
+    tags.filter(({condition}) => !shown.conditions.includes(condition.key))
+      .forEach(({condition, tag}) => spawnFx(condition.fx, tag.getBoundingClientRect()));
+  }
+  shown.conditions = tags.map(({condition}) => condition.key);
 }
 
 function slotRow(){
@@ -110,7 +183,15 @@ function slotRow(){
 export function renderHud(hud){
   hud.innerHTML = "";
   const hp = hpRow();
-  hud.append(topRow(), hp.row, statusRow());
+  const {tray, roll} = state.conditionTray ? conditionTray() : {tray: null, roll: null};
+  const status = statusRow(tray);
+  hud.append(topRow(), hp.row, status.row);
+  if(tray){
+    hud.appendChild(tray);
+    tray.style.setProperty("--tray-height", roll.scrollHeight + "px");
+  }
   if(state.character.spellcasting) hud.appendChild(slotRow());
   celebrate(hp.bar);
+  announce(status.tags);
+  shown.isTrayOpen = Boolean(tray);
 }
