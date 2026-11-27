@@ -1,6 +1,6 @@
 import {state, setOpenAttack} from "../store/state.js";
 import {setAttack, cycleAttackAbility, addAttack, removeAttack} from "../store/character.js";
-import {attackBonus, damageBonus, rollMark} from "../rules/sheet.js";
+import {attackBonus, damageBonus, rollMark, attacksPerAction} from "../rules/sheet.js";
 import {signed} from "../rules/format.js";
 import {makeFrame} from "../ui/frame.js";
 import {el} from "./dom.js";
@@ -30,12 +30,22 @@ function attackEditor(attack, index){
   return card;
 }
 
+function damageType(type){
+  const short = type.trim().length === 1;
+  const mark = el("span", "damage-type", short ? type.trim().toUpperCase() : type.trim());
+  mark.dataset.type = short ? type.trim().toUpperCase() : "word";
+  return mark;
+}
+
 function attackRow(attack, index){
   const character = state.character;
   const row = el("button", "attack");
   row.type = "button";
-  [attack.name, signed(attackBonus(character, attack)), `${attack.damageDice}${signed(damageBonus(character, attack))} ${attack.damageType}`]
-    .forEach(text => row.appendChild(el("span", "attack-cell", text)));
+  const hit = el("span", "attack-cell attack-hit");
+  hit.append(el("b", "attack-bonus", signed(attackBonus(character, attack))), el("span", "attack-ability", attack.ability.toUpperCase()));
+  const damage = el("span", "attack-cell attack-damage");
+  damage.append(el("b", "attack-dice", attack.damageDice + signed(damageBonus(character, attack))), damageType(attack.damageType));
+  row.append(el("span", "attack-cell attack-name", attack.name), hit, damage);
   row.addEventListener("click", () => setOpenAttack(index));
   return row;
 }
@@ -43,11 +53,16 @@ function attackRow(attack, index){
 export function renderAttacks(main){
   const attacks = state.character.attacks;
   const box = makeFrame(el("section"), "Attacks & spellcasting · tap one to change it");
-  const head = el("div", "attack-head");
-  const nameHead = el("span", "attack-cell", "Name");
+  const count = attacksPerAction(state.character, state.play);
   const roll = rollMark(state.character, state.play, "attack");
-  if(roll) nameHead.appendChild(diceMark(roll));
-  head.append(nameHead, el("span", "attack-cell", "Atk bonus"), el("span", "attack-cell", "Damage/type"));
+  if(count > 1 || roll){
+    const top = el("div", "attack-top");
+    top.appendChild(el("span", "attack-count", count > 1 ? `${count} attacks per Attack action` : ""));
+    if(roll) top.appendChild(diceMark(roll));
+    box.appendChild(top);
+  }
+  const head = el("div", "attack-head");
+  ["Name", "Atk bonus", "Damage/type"].forEach(text => head.appendChild(el("span", "attack-label", text)));
   box.appendChild(head);
   attacks.forEach((attack, index) => box.appendChild(state.openAttack === index ? attackEditor(attack, index) : attackRow(attack, index)));
   box.appendChild(actionButton("+ Add an attack", {}, () => {

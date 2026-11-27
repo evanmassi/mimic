@@ -58,6 +58,9 @@ export function conditionCause(character, play, key){
   return effectConditions(character, play).includes(key) ? "feature" : null;
 }
 
+export const attacksPerAction = (character, play) =>
+  Math.max(1, ...activeEffects(character, play).map(effects => effects.attacks || 1));
+
 export function saveSeals(character, play){
   const isConscious = !activeConditions(character, play).some(condition => condition.key === "unconscious");
   return activeEffects(character, play).filter(effects => effects.saveBonus).map(({saveBonus, whileConscious}) => {

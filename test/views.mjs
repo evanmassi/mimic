@@ -180,7 +180,7 @@ section("Roll marks");
   check("no marks on a fresh sheet", els.main.find("dice-mark").length === 0 && els.main.find("foes-note").length === 0);
   playStoreView.toggleCondition("poisoned");
   equal("poisoned marks the skills once, not every row", [marksIn(frame("Skills").find("frame-label")[0]), frame("Skills").find("prof").flatMap(marksIn)], [["dis"], []]);
-  equal("and initiative, the attack column and the spell attack", [marksIn(initiative()), marksIn(els.main.find("attack-head")[0]), marksIn(spellAttack())], [["dis"], ["dis"], ["dis"]]);
+  equal("and initiative, the attack column and the spell attack", [marksIn(initiative()), marksIn(els.main.find("attack-top")[0]), marksIn(spellAttack())], [["dis"], ["dis"], ["dis"]]);
   equal("the saves stay clear", marksIn(frame("Saving throws")), []);
   playStoreView.toggleCondition("poisoned");
   playStoreView.toggleActive("shellDefense");
@@ -315,6 +315,19 @@ section("Pencil fields are always writable");
   equal("coins save as you type", state.character.coins.gp, 250);
 }
 
+section("Attack rows");
+{
+  fresh();
+  const trident = els.main.find("attack")[0];
+  equal("name, to-hit with its ability, damage with its type", [trident.find("attack-name")[0].textContent, trident.find("attack-bonus")[0].textContent,
+    trident.find("attack-ability")[0].textContent, trident.find("attack-dice")[0].textContent, trident.find("damage-type")[0].dataset.type], ["Trident +1", "+10", "STR", "1d6+8", "P"]);
+  equal("Extra Attack shows on top", els.main.find("attack-count")[0].textContent, "2 attacks per Attack action");
+  state.character = {...state.character, attacks: [{...state.character.attacks[0], damageType: "fire"}], features: state.character.features.filter(feature => feature.id !== "extraAttack")};
+  render();
+  equal("other damage types show as a word", [els.main.find("damage-type")[0].dataset.type, els.main.find("damage-type")[0].textContent], ["word", "fire"]);
+  equal("one attack per action needs no line", els.main.find("attack-top").length, 0);
+}
+
 section("Attacks open in place");
 {
   fresh();
@@ -327,7 +340,7 @@ section("Attacks open in place");
   card.find("btn").find(button => button.textContent === "STR").fire("click");
   equal("the ability button cycles", state.character.attacks[1].ability, "dex");
   tap(els.main.find("attack-edit")[0], "Done");
-  equal("Done closes it with the new numbers", els.main.find("attack")[1].find("attack-cell")[1].textContent, "+5");
+  equal("Done closes it with the new numbers", [els.main.find("attack")[1].find("attack-bonus")[0].textContent, els.main.find("attack")[1].find("attack-ability")[0].textContent], ["+5", "DEX"]);
   const before = state.character.attacks.length;
   tap(els.main, "+ Add an attack");
   equal("a new attack opens ready to fill in", [state.character.attacks.length, els.main.find("attack-edit").length], [before + 1, 1]);

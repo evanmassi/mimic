@@ -95,6 +95,14 @@ section("Seals on the saves");
   equal("no save bonus, no seals", sheet.saveSeals(c, p), []);
 }
 
+section("Attacks per action");
+{
+  const c = nawe();
+  const p = play.newPlay(c);
+  equal("Extra Attack makes it two", sheet.attacksPerAction(c, p), 2);
+  equal("without it, one", sheet.attacksPerAction({...c, features: c.features.filter(feature => feature.id !== "extraAttack")}, p), 1);
+}
+
 section("Conditions mark your rolls");
 {
   const c = nawe();
