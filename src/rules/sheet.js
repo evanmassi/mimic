@@ -33,9 +33,12 @@ export const formulaValue = (character, formula) =>
 export const slotDice = (tracker, slotLevel) =>
   Math.min(tracker.maxDice, tracker.baseDice + slotLevel - 1) + tracker.die;
 
-const activeEffects = (character, play) => character.features
+const toggledEffects = (character, play) => character.features
   .filter(feature => feature.tracker && feature.tracker.kind === "toggle" && play.active.includes(feature.id))
   .map(feature => feature.tracker.effects);
+
+const activeEffects = (character, play) =>
+  [...character.features.filter(feature => feature.effects).map(feature => feature.effects), ...toggledEffects(character, play)];
 
 export const armorClass = (character, play) =>
   activeEffects(character, play).reduce((ac, effects) => ac + (effects.acBonus || 0), character.armorClass);
@@ -52,6 +55,15 @@ export function conditionCause(character, play, key){
   if(play.conditions.includes(key)) return null;
   if(zeroHpConditions(play).includes(key)) return "zeroHp";
   return effectConditions(character, play).includes(key) ? "feature" : null;
+}
+
+export function saveSeals(character, play){
+  const isConscious = !activeConditions(character, play).some(condition => condition.key === "unconscious");
+  return activeEffects(character, play).filter(effects => effects.saveBonus).map(({saveBonus, whileConscious}) => {
+    const amount = formulaValue(character, saveBonus.amount);
+    return {label: saveBonus.label, amount: "min" in saveBonus ? Math.max(saveBonus.min, amount) : amount,
+      isLit: !whileConscious || isConscious};
+  });
 }
 
 export function speed(character, play){

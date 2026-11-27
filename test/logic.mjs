@@ -79,6 +79,21 @@ section("Toggles, conditions and exhaustion");
   equal("exhaustion 5 sets speed 0", sheet.speed(c, {...p, exhaustion: 5}), 0);
 }
 
+section("Seals on the saves");
+{
+  const c = nawe();
+  const p = play.newPlay(c);
+  equal("aura of protection adds CHA, apart from the save numbers", [sheet.saveSeals(c, p), sheet.saveBonus(c, "con")], [[{label: "Aura", amount: 3, isLit: true}], 4]);
+  equal("the aura goes out at 0 HP", sheet.saveSeals(c, {...p, hp: 0})[0].isLit, false);
+  equal("and while unconscious for any other reason", sheet.saveSeals(c, {...p, conditions: ["unconscious"]})[0].isLit, false);
+  c.scores.cha = 8;
+  equal("the aura is never below +1", sheet.saveSeals(c, p)[0].amount, 1);
+  c.features.push({id: "ring", name: "Ring of Protection", text: "", tracker: null, effects: {saveBonus: {label: "Ring", amount: {base: 1}}}});
+  equal("a flat bonus stays lit at 0 HP", sheet.saveSeals(c, {...p, hp: 0}).map(seal => [seal.label, seal.amount, seal.isLit]), [["Aura", 1, false], ["Ring", 1, true]]);
+  c.features = c.features.filter(feature => !feature.effects);
+  equal("no save bonus, no seals", sheet.saveSeals(c, p), []);
+}
+
 section("Hit points");
 {
   const c = nawe();

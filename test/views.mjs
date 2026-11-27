@@ -130,6 +130,18 @@ section("Death saves appear at 0 HP");
   equal("three failures and it goes dark", fallen().dataset.fate, "dead");
 }
 
+section("The aura seal on the saves");
+{
+  fresh();
+  const saves = () => els.main.find("frame").find(frame => frame.find("frame-label")[0].textContent === "Saving throws");
+  const seal = () => saves().find("seal")[0];
+  equal("the saves box glows with a +3 aura seal", [saves().dataset.seal, seal().textContent, seal().dataset.lit], ["lit", "+3Aura", "on"]);
+  equal("the save numbers stay as written", saves().find("prof-value")[2].textContent, "+4");
+  playStoreView.adjustHp(-200);
+  equal("dropping to 0 HP puts the aura out", [saves().dataset.seal, seal().dataset.lit], ["out", "off"]);
+  check("other boxes have no seal", !("seal" in els.main.find("frame").find(frame => frame.find("frame-label")[0].textContent === "Skills").dataset));
+}
+
 section("Shell Defense");
 {
   fresh();
