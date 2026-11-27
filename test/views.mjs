@@ -9,6 +9,7 @@ const {render} = await import("../src/views/app.js");
 const {mountDrawer} = await import("../src/views/drawers/drawer.js");
 const {loadSpellLibrary} = await import("../src/store/spellLibrary.js");
 const {TRAY_CLOSE_MS} = await import("../src/data/constants.js");
+const playStoreView = await import("../src/store/play.js");
 
 mountDrawer(els.drawer, els.drawertitle, els.drawerbody, els.drawerclose, els.drawerback);
 changes.subscribe(render);
@@ -40,6 +41,7 @@ section("The sheet renders");
   equal("HUD shows AC and speed", [els.hud.find("hud-ac")[0].find("badge-value")[0].textContent, els.hud.find("hud-speed")[0].find("badge-value")[0].textContent], ["19", "30"]);
   equal("HUD shows HP", hudText("hp-text"), "106 / 106");
   equal("HUD shows a slot row per spell level", els.hud.find("hud-slot").length, 3);
+  equal("the hit die reads as a die", els.main.find("banner-field").find(box => box.find("stat-label")[0].textContent === "Hit die").find("stat-value")[0].textContent, "d10");
   equal("six ability boxes", els.main.find("ability").length, 6);
   equal("six saves and eighteen skills", els.main.find("prof").length, 24);
   equal("every attack renders", els.main.find("attack").length, 4);
@@ -79,6 +81,25 @@ section("HP buttons and the drag bar");
   els.drawerbody.find("field-input")[0].value = "20";
   tap(els.drawerbody, "Temp HP");
   equal("temp HP from the drawer", [state.play.tempHp, hudText("hp-text")], [20, "74 / 106  +20"]);
+}
+
+section("The slip under the HP bar");
+{
+  fresh();
+  tap(els.hud, "−");
+  const slip = () => els.hud.find("notice")[0];
+  equal("a change leaves a slip saying what happened", [slip().find("notice-value")[0].textContent, slip().find("notice-label")[0].textContent], ["−1", "HP"]);
+  tap(slip(), "Undo");
+  equal("Undo puts it back", state.play.hp, 106);
+  playStoreView.toggleCondition("concentrating");
+  tap(els.hud, "−");
+  equal("damage while concentrating asks for the save", [slip().dataset.kind, slip().find("notice-stamp-value")[0].textContent, slip().find("notice-bonus")[0].textContent], ["concentration", "10", "+4"]);
+  tap(slip(), "Lost");
+  check("Lost drops Concentrating", !state.play.conditions.includes("concentrating"));
+  playStoreView.toggleCondition("concentrating");
+  tap(els.hud, "−");
+  tap(slip(), "Held");
+  equal("Held puts the slip away", els.hud.find("notice").length, 0);
 }
 
 section("Death saves appear at 0 HP");

@@ -11,14 +11,15 @@ const FIELDS = [
   {field: "background", label: "Background", kind: "text"},
   {field: "alignment", label: "Alignment", kind: "text"},
   {field: "playerName", label: "Player", kind: "text"},
-  {field: "hitDie", label: "Hit die (d…)", kind: "number"}
+  {field: "hitDie", label: "Hit die", kind: "number", prefix: "d"}
 ];
 
-function fieldBox({field, label, kind}){
+function fieldBox({field, label, kind, prefix = ""}){
   const box = el("div", "banner-field");
   const value = state.character[field];
-  box.append(state.isEditing ? editableField(kind, value, next => setField(field, next), label) : el("b", "stat-value", String(value)),
-    el("span", "stat-label", label));
+  const fullLabel = state.isEditing && prefix ? `${label} (${prefix}…)` : label;
+  box.append(state.isEditing ? editableField(kind, value, next => setField(field, next), fullLabel) : el("b", "stat-value", prefix + value),
+    el("span", "stat-label", fullLabel));
   return box;
 }
 

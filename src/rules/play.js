@@ -1,4 +1,4 @@
-import {HP_DRAG_FULL_SWIPE, DEATH_SAVE_COUNT} from "../data/constants.js";
+import {HP_DRAG_FULL_SWIPE, DEATH_SAVE_COUNT, CONCENTRATION_MIN_DC} from "../data/constants.js";
 import {hpMax} from "./sheet.js";
 
 const NO_DEATH_SAVES = {successes: 0, failures: 0};
@@ -20,6 +20,8 @@ export function healed(play, amount, max){
 export const withTempHp = (play, amount) => ({...play, tempHp: Math.max(play.tempHp, amount)});
 
 export const adjusted = (play, delta, max) => delta < 0 ? damaged(play, -delta) : healed(play, delta, max);
+
+export const concentrationDc = damage => Math.max(CONCENTRATION_MIN_DC, Math.floor(damage / 2));
 
 export const hpWear = (play, max) => 1 - Math.min(play.hp, max) / max;
 

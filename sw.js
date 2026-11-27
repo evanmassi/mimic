@@ -1,4 +1,5 @@
 const CACHE = "mimic-v1";
+const NETWORK_WAIT_MS = 3000;
 
 const ASSETS = [
   "./", "./index.html", "./manifest.json",
@@ -11,6 +12,7 @@ const ASSETS = [
   "./src/data/spellSources.js",
   "./src/data/spells.js",
   "./src/main.js",
+  "./src/rules/changes.js",
   "./src/rules/format.js",
   "./src/rules/lists.js",
   "./src/rules/markdown.js",
@@ -46,6 +48,7 @@ const ASSETS = [
   "./src/views/app.js",
   "./src/views/attacks.js",
   "./src/views/combat.js",
+  "./src/views/conditionTray.js",
   "./src/views/controls.js",
   "./src/views/dom.js",
   "./src/views/drawers/drawer.js",
@@ -58,6 +61,7 @@ const ASSETS = [
   "./src/views/hpBar.js",
   "./src/views/hud.js",
   "./src/views/identity.js",
+  "./src/views/notice.js",
   "./src/views/notes.js",
   "./src/views/personality.js",
   "./src/views/proficiencies.js",
@@ -80,7 +84,7 @@ const ASSETS = [
 self.addEventListener("install", e => {
   e.waitUntil(
     caches.open(CACHE)
-      .then(cache => Promise.allSettled(ASSETS.map(url => cache.add(url))))
+      .then(cache => Promise.allSettled(ASSETS.map(url => cache.add(new Request(url, {cache: "reload"})))))
       .then(() => self.skipWaiting())
   );
 });
@@ -98,16 +102,16 @@ self.addEventListener("fetch", e => {
   if(req.method !== "GET") return;
   if(new URL(req.url).origin !== self.location.origin) return;
 
-  const cached = caches.open(CACHE).then(cache => cache.match(req).then(hit => ({cache, hit})));
+  const opened = caches.open(CACHE);
+  const fresh = opened.then(cache => fetch(req, {cache: "no-cache"}).then(res => {
+    if(res.ok) cache.put(req, res.clone());
+    return res;
+  }));
+  const fallback = () => opened.then(cache => cache.match(req)
+    .then(hit => hit || (req.mode === "navigate" ? cache.match("./index.html") : Response.error())));
+  const slow = new Promise(done => setTimeout(done, NETWORK_WAIT_MS))
+    .then(() => opened).then(cache => cache.match(req)).then(hit => hit || fresh);
 
-  const fresh = cached.then(({cache, hit}) =>
-    fetch(req, {cache: "no-cache"})
-      .then(res => {
-        if(res.ok) cache.put(req, res.clone());
-        return res;
-      })
-      .catch(() => hit || (req.mode === "navigate" ? cache.match("./index.html") : undefined)));
-
-  e.waitUntil(fresh);
-  e.respondWith(cached.then(({hit}) => hit || fresh));
+  e.waitUntil(fresh.catch(() => {}));
+  e.respondWith(Promise.race([fresh, slow]).catch(fallback));
 });

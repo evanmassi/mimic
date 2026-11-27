@@ -3,3 +3,9 @@ node_modules/
 debug.log
 refs/
 AGENTS.md
+tools/browser.mjs
+tools/shoot.mjs
+tools/cutout.mjs
+tools/serve.py
+tools/drawArt.py
+docs/working-notes.md

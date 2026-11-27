@@ -32,6 +32,8 @@ are in `~/Pictures/DnD/Nawe_pg1-3.jpeg`. The app stays character-agnostic. Nawe 
   shatters at 0, then glows faint ember while dying, calm gold-green when stable, and goes to ash when dead.
 - **Death saves end with art, not glyphs:** a candle whose flame steadies under an old-map banner for Stable, a skull
   under a torn blood-red banner for Dead. The art matches the app icon's style.
+- **A parchment slip under the HP bar** says what just changed, with Undo for the last five actions. Damage while
+  Concentrating turns it into the save: a DC stamp (half the damage, at least 10), the CON bonus, and Held or Lost.
 - **Conditions are picked in a tray that unrolls inside the HUD** like a scroll, not a drawer, so nothing covers the
   chips while their bursts play. A line under the chips gives the rules for the last one tapped.
 - **Every spell, without bundling closed text:** an Import spells feature reads a spell file Evan emails to himself

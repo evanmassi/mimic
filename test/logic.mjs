@@ -14,6 +14,7 @@ const {state, hydrate} = await import("../src/store/state.js");
 const playStore = await import("../src/store/play.js");
 const characterStore = await import("../src/store/character.js");
 const spellRules = await import("../src/rules/spells.js");
+const {describeChange} = await import("../src/rules/changes.js");
 const {textBlocks} = await import("../src/rules/markdown.js");
 const {levelLabel} = await import("../src/rules/format.js");
 const {SPELL_SOURCES} = await import("../src/data/spellSources.js");
@@ -151,6 +152,40 @@ section("Older saves");
   hydrate();
   equal("use counts from older saves load as the rightmost orbs, pools stay amounts", state.play.spent,
     {divineSense: [3, 2], channelDivinity: [], layOnHands: 15});
+}
+
+section("Undo and concentration");
+{
+  const c = nawe();
+  const base = play.newPlay(c);
+  equal("a change says what it was", [
+    describeChange(c, base, {...base, hp: 94}),
+    describeChange(c, base, {...base, slotsSpent: {2: [2]}}),
+    describeChange(c, base, {...base, conditions: ["poisoned"]}),
+    describeChange(c, base, {...base, spent: {layOnHands: 5}})
+  ].map(n => [n.value, n.text]), [["−12", "HP"], ["Lv 2", "slot spent"], ["Poisoned", "on"], ["−5", "Lay on Hands"]]);
+  equal("the concentration DC is half the damage, at least 10", [play.concentrationDc(5), play.concentrationDc(24), play.concentrationDc(31)], [10, 12, 15]);
+  fresh();
+  playStore.takeDamage(10);
+  playStore.toggleCondition("poisoned");
+  playStore.undo();
+  equal("undo steps back one action", [state.play.hp, state.play.conditions], [96, []]);
+  playStore.undo();
+  equal("and again", state.play.hp, 106);
+  [1, 2, 3, 4, 5, 6, 7].forEach(() => playStore.takeDamage(1));
+  equal("it remembers the last five", state.history.length, 5);
+  fresh();
+  playStore.toggleCondition("concentrating");
+  playStore.adjustHp(-24);
+  equal("damage while concentrating asks for a save", [state.notice.kind, state.notice.damage], ["concentration", 24]);
+  playStore.adjustHp(-1);
+  equal("a quick second tap is the same hit", state.notice.damage, 25);
+  playStore.loseConcentration();
+  equal("losing it drops Concentrating", [state.play.conditions.includes("concentrating"), state.notice.kind], [false, "change"]);
+  fresh();
+  playStore.toggleCondition("concentrating");
+  playStore.takeDamage(200);
+  equal("no save to ask for at 0 HP", state.notice.kind, "change");
 }
 
 section("Store edits");

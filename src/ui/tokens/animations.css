@@ -1,3 +1,9 @@
+:root {
+  /* loops */
+  --idle-loops: 4;
+  --alert-loops: 12;
+}
+
 @keyframes flash { 0% { transform: scale(1.15); } 100% { transform: scale(1); } }
 @keyframes shake { 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
 @keyframes rise { from { transform: translateY(100%); } to { transform: translateY(0); } }

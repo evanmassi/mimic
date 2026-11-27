@@ -20,7 +20,7 @@
   border-color:var(--mana-deep);
   background:radial-gradient(circle at 35% 30%,var(--mana-core) 0,var(--mana-light) 22%,var(--mana) 60%,var(--mana-deep) 100%);
   box-shadow:0 0 5px var(--mana-glow),inset 0 0 3px var(--mana-core);
-  animation:mana-breathe 2.8s ease-in-out infinite;animation-delay:calc(var(--i) * -0.45s);
+  animation:mana-breathe 2.8s ease-in-out var(--idle-loops);animation-delay:calc(var(--i) * -0.45s);
 }
 
 .dots[data-feel="holy"]{isolation:isolate;gap:8px;padding:2px}
@@ -38,7 +38,7 @@
   content:"";position:absolute;inset:-6px;z-index:-1;border-radius:50%;pointer-events:none;
   background:repeating-conic-gradient(var(--holy-glow) 0 5deg,transparent 5deg 30deg);
   mask:radial-gradient(circle,transparent 45%,var(--ink) 55%,transparent 72%);
-  animation:holy-turn 14s linear infinite;animation-delay:calc(var(--i) * -2.3s);
+  animation:holy-turn 14s linear var(--idle-loops);animation-delay:calc(var(--i) * -2.3s);
 }
 
 @keyframes holy-turn{to{rotate:360deg}}

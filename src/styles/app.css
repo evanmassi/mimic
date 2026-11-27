@@ -60,7 +60,7 @@ button{font:inherit;color:inherit}
     color-mix(in oklab,var(--paper-shade),var(--ink-soft) calc(var(--wear) * 38%));
   box-shadow:inset 0 0 0 2px var(--paper-light),inset 0 0 0 3px var(--ink-faint),
     inset 0 0 calc(var(--wear) * 18px) calc(var(--wear) * 2px) color-mix(in oklab,var(--blood-black) calc(var(--wear) * 60%),transparent);
-  animation:hp-throb calc(1.7s - var(--wear) * .7s) ease-in-out infinite;
+  animation:hp-throb calc(1.7s - var(--wear) * .7s) ease-in-out var(--alert-loops);
 }
 .hp-fill{
   --liquid:color-mix(in oklab,var(--blood-bright),var(--blood-black) calc(var(--wear) * 82%));
@@ -69,7 +69,7 @@ button{font:inherit;color:inherit}
   background:linear-gradient(color-mix(in oklab,var(--liquid),var(--ink-on-dark) calc((1 - var(--wear)) * 12%)) 0,var(--liquid) 30%,var(--liquid-deep) 100%);
   box-shadow:inset -3px 0 3px -1px color-mix(in oklab,var(--ink-on-dark) calc((1 - var(--wear)) * 70%),transparent),
     inset 0 -4px 6px -3px color-mix(in oklab,var(--blood-black) 60%,transparent);
-  animation:hp-heartbeat calc(1.7s - var(--wear) * .7s) ease-in-out infinite;
+  animation:hp-heartbeat calc(1.7s - var(--wear) * .7s) ease-in-out var(--alert-loops);
 }
 .hp-bar::before{
   content:"";position:absolute;inset:0;z-index:1;pointer-events:none;padding:0 6px;border-radius:4px;
@@ -78,7 +78,7 @@ button{font:inherit;color:inherit}
     radial-gradient(ellipse 16% 2.5px at 20% 5px,color-mix(in oklab,var(--ink-on-dark) calc(var(--clarity) * 90%),transparent),transparent) 0 0/100% 100% no-repeat content-box,
     linear-gradient(color-mix(in oklab,var(--ink-on-dark) calc(var(--clarity) * 85%),transparent) 0 1.5px,color-mix(in oklab,var(--ink-on-dark) calc(var(--clarity) * 30%),transparent) 2px,transparent) 0 3px/100% 7px no-repeat content-box,
     linear-gradient(transparent,color-mix(in oklab,var(--ink-on-dark) calc(var(--clarity) * 26%),transparent)) 0 calc(100% - 4px)/100% 2px no-repeat content-box;
-  animation:glass-sheen 7s ease-in-out infinite;
+  animation:glass-sheen 7s ease-in-out var(--idle-loops);
 }
 .hp-fill::after{
   content:"";position:absolute;inset:0;background:var(--texture-clot);mix-blend-mode:multiply;
@@ -102,12 +102,12 @@ button{font:inherit;color:inherit}
 .hp-bar:not([data-fate="alive"]) .hp-impact{opacity:1;transform:scale(1)}
 .hp-bar[data-fate="dying"]{
   box-shadow:inset 0 0 0 2px var(--paper-light),inset 0 0 0 3px var(--ink-faint),inset 0 0 14px 1px color-mix(in oklab,var(--ember) 45%,transparent);
-  animation:hp-aura 3.4s ease-in-out infinite;
+  animation:hp-aura 3.4s ease-in-out var(--alert-loops);
 }
 .hp-bar[data-fate="stable"]{
   border-color:var(--ink);
   box-shadow:inset 0 0 0 2px var(--paper-light),inset 0 0 0 3px var(--ink-faint),inset 0 0 14px 1px var(--life-glow);
-  animation:hp-aura-steady 4s ease-in-out infinite;
+  animation:hp-aura-steady 4s ease-in-out var(--alert-loops);
 }
 .hp-bar[data-fate="dead"]{
   border-color:var(--ink);background:color-mix(in oklab,var(--paper-shade),var(--ink) 48%);
@@ -143,6 +143,41 @@ button{font:inherit;color:inherit}
   .hp-bar,.hp-bar::before,.hp-fill{animation:none}
 }
 
+.notice{
+  display:flex;align-items:center;gap:8px;margin:2px 0 6px;padding:2px 2px 2px 12px;min-height:40px;
+  background:var(--texture-grain),radial-gradient(ellipse at 50% 0,var(--paper-light),var(--paper) 90%);
+  border:1.5px solid var(--ink);border-radius:3px;
+  box-shadow:inset 0 0 0 2px var(--paper-light),inset 0 0 0 3px var(--ink-faint),0 2px 3px var(--shadow-hud);
+}
+.notice[data-motion="in"]{animation:notice-in 220ms ease-out}
+.notice-text{flex:1;min-width:0;display:flex;align-items:baseline;gap:5px}
+.notice-value{font:700 16px var(--font-value);color:var(--ink)}
+.notice-value[data-tone="down"]{color:var(--blood)}
+.notice-value[data-tone="up"]{color:var(--verdant)}
+.notice-label{font:var(--size-small) var(--font-label);letter-spacing:var(--track-label);color:var(--ink-soft)}
+.notice .btn{
+  flex:none;border:none;box-shadow:none;background:none;border-radius:4px;color:var(--ink-soft);
+  font:var(--size-small) var(--font-label);letter-spacing:.12em;padding:9px 10px;
+}
+.notice .btn:active{background:color-mix(in oklab,var(--ink) 8%,transparent)}
+.notice .btn[data-tone="mana"]{color:var(--mana-deep)}
+.notice-undo::before{content:"↶ ";font:15px/1 var(--font-value)}
+.notice-undo[data-size="compact"]::before{content:"↶";font-size:17px}
+.notice-stamp{
+  flex:none;width:40px;height:40px;margin:4px 2px 4px -2px;border-radius:50%;rotate:-6deg;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  color:color-mix(in oklab,var(--mana-deep) 80%,transparent);border:1.5px solid color-mix(in oklab,var(--mana-deep) 55%,transparent);
+  box-shadow:inset 0 0 0 2px var(--paper-light),inset 0 0 0 3px color-mix(in oklab,var(--mana-deep) 35%,transparent);
+}
+.notice-stamp-label{font:7px/1 var(--font-label);letter-spacing:.14em}
+.notice-stamp-value{font:700 15px/1 var(--font-value)}
+.notice-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.notice-title{font:16px/1.05 var(--font-heading);color:var(--ink)}
+.notice-sub{display:flex;align-items:baseline;gap:4px}
+.notice-bonus{font:700 12px var(--font-value);color:var(--mana-deep)}
+.notice-actions{display:flex;flex:none}
+.notice-actions .btn + .btn{border-left:1px solid var(--ink-faint);border-radius:0}
+@keyframes notice-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 .hud-status{display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-height:26px}
 .tag{
   font:var(--size-small)/1.3 var(--font-label);letter-spacing:var(--track-label);cursor:pointer;
@@ -291,7 +326,7 @@ button.pill{cursor:pointer}
   background:linear-gradient(var(--holy-core),var(--holy-light) 25%,var(--holy) 60%,var(--holy-deep));box-shadow:0 0 6px var(--holy-glow);
 }
 .pool-fill::before{
-  content:"";position:absolute;inset:0;animation:vial-shimmer 3.6s ease-in-out infinite;
+  content:"";position:absolute;inset:0;animation:vial-shimmer 3.6s ease-in-out var(--idle-loops);
   background:linear-gradient(100deg,transparent 30%,var(--gloss) 50%,transparent 70%) 0 0/250% 100% no-repeat;
 }
 .pool-count{
