@@ -6,7 +6,6 @@ import {hpMax} from "../rules/sheet.js";
 import {signed} from "../rules/format.js";
 import {spawnFx} from "../ui/fx.js";
 import {el} from "./dom.js";
-import {openHpDrawer} from "./drawers/hpDrawer.js";
 
 let paintedWear = null;
 
@@ -16,7 +15,7 @@ function crack(index){
   return piece;
 }
 
-export function makeHpBar(){
+export function makeHpBar(onTap){
   const bar = el("div", "hp-bar");
   const fill = el("span", "hp-fill");
   const temp = el("span", "hp-temp");
@@ -77,7 +76,7 @@ export function makeHpBar(){
     if(startX === null) return;
     const wasDragging = isDragging;
     reset();
-    if(!wasDragging) openHpDrawer();
+    if(!wasDragging) onTap();
     else if(change) adjustHp(change);
     else paint(state.play, 0);
   });

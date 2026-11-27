@@ -14,7 +14,6 @@ const KINDS = {
   skull: {vignette: 1, skull: 1},
   doom: {shade: 1, fume: 5, skull: 1, word: 1},
   weary: {dim: 1, drip: 5},
-  dice: {die: 2},
   lids: {lid: 2},
   hearts: {heart: 6},
   hush: {halo: 3},
@@ -34,7 +33,6 @@ const KINDS = {
 };
 const GLYPHS = {
   heart: ["♥"],
-  die: ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"],
   star: ["✦", "✧", "★"],
   zee: ["z", "Z"]
 };

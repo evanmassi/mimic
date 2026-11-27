@@ -2,7 +2,7 @@ import {loadCharacter, saveCharacter, loadPlay, savePlay, loadNotes, saveNotes} 
 import {SAMPLE_CHARACTER, SAMPLE_NOTES} from "../data/sampleCharacter.js";
 import {newPlay} from "../rules/play.js";
 
-export const state = {character: null, play: null, notes: null, isEditing: false, openAttack: null, conditionTray: null,
+export const state = {character: null, play: null, notes: null, isEditing: false, openAttack: null, tray: null,
   history: [], notice: null};
 
 function channel(){
@@ -34,12 +34,17 @@ export function setOpenAttack(index){
 }
 
 export function openConditionTray(rule){
-  state.conditionTray = {rule};
+  state.tray = {kind: "conditions", rule};
   changes.notify();
 }
 
-export function closeConditionTray(){
-  state.conditionTray = null;
+export function openHpTray(){
+  state.tray = {kind: "hp"};
+  changes.notify();
+}
+
+export function closeTray(){
+  state.tray = null;
   changes.notify();
 }
 

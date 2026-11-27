@@ -13,24 +13,27 @@
 .dot[data-on="on"]{background:var(--dot-on);border-color:var(--dot-on)}
 
 .dots[data-feel="mana"] .dot{
-  border-color:var(--mana-deep);
-  background:radial-gradient(circle at 50% 60%,color-mix(in oklab,var(--mana) 14%,var(--paper-light)),var(--paper-light));
+  position:relative;overflow:hidden;border-style:dashed;border-color:color-mix(in oklab,var(--mana-deep) 55%,transparent);background:none;
 }
 .dots[data-feel="mana"] .dot[data-on="on"]{
-  border-color:var(--mana-deep);
-  background:radial-gradient(circle at 35% 30%,var(--mana-core) 0,var(--mana-light) 22%,var(--mana) 60%,var(--mana-deep) 100%);
-  box-shadow:0 0 5px var(--mana-glow),inset 0 0 3px var(--mana-core);
-  animation:mana-breathe 2.8s ease-in-out var(--idle-loops);animation-delay:calc(var(--i) * -0.45s);
+  --gem:color-mix(in oklab,var(--mana-light),var(--mana-deep) calc(min(var(--shade,1) - 1,4) * 22%));
+  border-style:solid;border-color:color-mix(in oklab,var(--gem),var(--mana-deep) 70%);
+  background:radial-gradient(circle at 34% 30%,var(--gloss) 0 9%,transparent 24%),
+    conic-gradient(from 22deg,var(--mana-core),var(--gem) 12%,var(--mana-deep) 25%,var(--gem) 37%,var(--mana-core) 50%,var(--gem) 62%,var(--mana-deep) 75%,var(--gem) 87%,var(--mana-core));
+  box-shadow:0 0 5px var(--mana-glow),inset 0 -2px 3px var(--shadow-hud);
+}
+.dots[data-feel="mana"] .dot[data-on="on"]::after{
+  content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none;
+  background:linear-gradient(115deg,transparent 35%,var(--gloss) 48%,transparent 60%) -150% 0/250% 100% no-repeat;
+  animation:gem-glint 6s ease-in-out var(--idle-loops);animation-delay:calc(var(--i) * .7s + 1s);
 }
 
 .dots[data-feel="holy"]{isolation:isolate;gap:8px;padding:2px}
 .dots[data-feel="holy"] .dot{
-  position:relative;border-color:color-mix(in oklab,var(--holy-deep) 55%,transparent);
-  background:var(--texture-sun-etch) center/78% no-repeat,radial-gradient(circle at 50% 40%,var(--paper-shade),var(--paper-deep));
-  box-shadow:inset 0 1px 2px var(--shadow-hud);
+  position:relative;border-style:dashed;border-color:color-mix(in oklab,var(--holy-deep) 55%,transparent);background:none;
 }
 .dots[data-feel="holy"] .dot[data-on="on"]{
-  border-color:var(--holy-deep);
+  border-style:solid;border-color:var(--holy-deep);
   background:radial-gradient(circle at 35% 30%,var(--holy-core) 0,var(--holy-light) 22%,var(--holy) 58%,var(--holy-deep) 100%);
   box-shadow:0 0 6px var(--holy-glow),inset 0 0 3px var(--holy-core);
 }
@@ -42,11 +45,8 @@
 }
 
 @keyframes holy-turn{to{rotate:360deg}}
-@keyframes mana-breathe{
-  0%,100%{box-shadow:0 0 3px var(--mana-glow),inset 0 0 3px var(--mana-core)}
-  50%{box-shadow:0 0 10px var(--mana-glow),0 0 2px var(--mana-core),inset 0 0 4px var(--mana-core)}
-}
+@keyframes gem-glint{0%,75%{background-position:-150% 0}100%{background-position:250% 0}}
 
 @media (prefers-reduced-motion: reduce){
-  .dots[data-feel="mana"] .dot[data-on="on"],.dots[data-feel="holy"] .dot[data-on="on"]::before{animation:none}
+  .dots[data-feel="mana"] .dot[data-on="on"]::after,.dots[data-feel="holy"] .dot[data-on="on"]::before{animation:none}
 }

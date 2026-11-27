@@ -27,7 +27,7 @@ function fresh(){
   localStorage.clear();
   state.isEditing = false;
   state.openAttack = null;
-  state.conditionTray = null;
+  state.tray = null;
   els.drawer.hidden = true;
   delete els.drawer.dataset.closing;
   hydrate();
@@ -55,11 +55,23 @@ section("The sheet renders");
 section("HP buttons and the drag bar");
 {
   fresh();
-  tap(els.hud, "−");
-  equal("minus takes 1 HP", state.play.hp, 105);
+  const tapBar = () => {
+    const bar = els.hud.find("hp-bar")[0];
+    bar.fire("pointerdown", {clientX: 100});
+    bar.fire("pointerup");
+  };
+  tapBar();
+  check("a tap on the bar unrolls the HP scroll under it", els.hud.find("hp-steps").length === 1 && !drawerOpen());
+  tap(els.hud, "−1");
+  equal("−1 takes 1 HP and the scroll stays open", [state.play.hp, els.hud.find("hp-steps").length], [105, 1]);
   check("the bar shakes on a hit", els.hud.find("hp-bar")[0].classList.contains("hit"));
-  tap(els.hud, "+");
+  tap(els.hud, "+5");
+  equal("+5 heals up to the max", state.play.hp, 106);
   check("the bar flashes on a heal", els.hud.find("hp-bar")[0].classList.contains("healed"));
+  tapBar();
+  equal("tapping the bar again rolls it up", els.hud.find("tray")[0].dataset.motion, "close");
+  state.tray = null;
+  render();
 
   const bar = els.hud.find("hp-bar")[0];
   bar.clientWidth = 300;
@@ -77,16 +89,25 @@ section("HP buttons and the drag bar");
   again.fire("pointerdown", {clientX: 100});
   again.fire("pointermove", {clientX: 103});
   again.fire("pointerup");
-  check("a tap opens the HP drawer", drawerOpen() && els.drawertitle.textContent === "Hit points");
-  els.drawerbody.find("field-input")[0].value = "20";
-  tap(els.drawerbody, "Temp HP");
-  equal("temp HP from the drawer", [state.play.tempHp, hudText("hp-text")], [20, "74 / 106  +20"]);
+  check("a tap opens the HP scroll", els.hud.find("hp-entry").length === 1);
+  const amount = els.hud.find("hp-entry")[0].find("field-input")[0];
+  amount.value = "2x0";
+  amount.fire("input");
+  equal("the amount takes digits only", amount.value, "20");
+  equal("each outcome shows where you'd land", els.hud.find("hp-result").map(result => result.textContent), ["→ 54", "→ 94", "+20"]);
+  els.hud.find("hp-outcome").find(button => button.find("hp-outcome-word")[0].textContent === "Temp HP").fire("click");
+  equal("temp HP applies and the scroll rolls up", [state.play.tempHp, hudText("hp-text"), els.hud.find("hp-entry").length], [20, "74 / 106  +20", 0]);
+  tapBar();
+  els.hud.find("hp-max-change")[0].fire("click");
+  els.hud.find("hp-max")[0].find("field-input")[0].value = "110";
+  tap(els.hud.find("hp-max")[0], "Set");
+  equal("the max can be changed from the foot", state.character.maxHp, 110);
 }
 
 section("The slip under the HP bar");
 {
   fresh();
-  tap(els.hud, "−");
+  playStoreView.adjustHp(-1);
   const slip = () => els.hud.find("notice")[0];
   const undoIcon = () => byText(els.hud, "Undo");
   equal("a change leaves no slip, just Undo ready in the HUD", [els.hud.find("notice").length, undoIcon().disabled, undoIcon().dataset.tone], [0, false, "blood"]);
@@ -98,12 +119,12 @@ section("The slip under the HP bar");
   els.hud.find("hud-slot")[0].find("dot")[0].fire("click");
   equal("nor does an orb tap", [els.hud.find("notice").length, state.play.slotsSpent[1]], [0, [0]]);
   playStoreView.toggleCondition("concentrating");
-  tap(els.hud, "−");
+  playStoreView.adjustHp(-1);
   equal("damage while concentrating asks for the save", [slip().find("notice-stamp-value")[0].textContent, slip().find("notice-bonus")[0].textContent], ["10", "+4"]);
   tap(slip(), "Lost");
   check("Lost drops Concentrating", !state.play.conditions.includes("concentrating"));
   playStoreView.toggleCondition("concentrating");
-  tap(els.hud, "−");
+  playStoreView.adjustHp(-1);
   tap(slip(), "Held");
   equal("Held puts the slip away", els.hud.find("notice").length, 0);
 }
@@ -118,16 +139,16 @@ section("Death saves appear at 0 HP");
   bar.fire("pointermove", {clientX: -2000});
   bar.fire("pointerup");
   equal("dragging all the way left drops to 0", state.play.hp, 0);
-  check("death saves show in the HUD", els.hud.find("hud-death").length === 1);
+  check("death saves take the slot row", els.hud.find("hud-death").length === 1 && els.hud.find("hud-slots").length === 0);
   const fallen = () => els.hud.find("hp-bar")[0];
   check("the bar shatters", fallen().classList.contains("shatter") && document.body.find("fx").some(fx => fx.dataset.kind === "fall"));
   equal("every crack is open and you're dying", [fallen().find("hp-crack").every(crack => crack.dataset.on === "on"), fallen().dataset.fate], [true, "dying"]);
   check("dropping to 0 knocks you unconscious", els.hud.find("tag").some(tag => tag.dataset.condition === "unconscious"));
-  tap(els.hud, "+ condition");
+  tap(els.hud, "Add a condition");
   els.hud.find("tray")[0].find("tag").find(tag => tag.textContent === "Unconscious").fire("click");
   check("it can't be taken off while at 0, and says why", els.hud.find("hud-status")[0].find("tag").some(tag => tag.textContent === "Unconscious")
     && els.hud.find("tray-rule-text")[0].textContent.startsWith("From dropping to 0 HP."));
-  state.conditionTray = null;
+  state.tray = null;
   state.play = {...state.play, deathSaves: {successes: 3, failures: 0}};
   render();
   equal("three successes steady the bar", fallen().dataset.fate, "stable");
@@ -170,6 +191,19 @@ section("Roll marks");
   equal("exhaustion 3 marks the saves once", [marksIn(frame("Saving throws").find("frame-label")[0]), frame("Saving throws").find("prof").flatMap(marksIn)], [["dis"], []]);
 }
 
+section("Hit dice are a rack of the character's die");
+{
+  fresh();
+  const dice = () => els.main.find("die");
+  equal("one d10 per level, all ready", [dice().length, dice().every(die => die.dataset.die === "d10" && die.dataset.on === "on")], [10, true]);
+  dice()[0].fire("click");
+  equal("tapping a ready die spends the last one, which rolls away and leaves a ghost", [state.play.hitDiceSpent, dice()[9].dataset.on, dice()[9].dataset.motion], [1, "off", "out"]);
+  dice()[9].fire("click");
+  equal("tapping the ghost brings it back, dropping in", [state.play.hitDiceSpent, dice()[9].dataset.on, dice()[9].dataset.motion], [0, "on", "in"]);
+  render();
+  equal("a later redraw doesn't replay it", dice()[9].dataset.motion, "still");
+}
+
 section("Shell Defense");
 {
   fresh();
@@ -189,8 +223,8 @@ section("The condition tray");
   const trayChip = name => tray().find("tag").find(tag => tag.textContent === name);
   const statusTags = () => els.hud.find("hud-status")[0].find("tag").filter(tag => tag.dataset.condition).map(tag => tag.textContent);
   const rule = part => tray().find("tray-rule-" + part)[0].textContent;
-  tap(els.hud, "+ condition");
-  equal("+ condition unrolls the tray in the HUD", tray().dataset.motion, "open");
+  tap(els.hud, "Add a condition");
+  equal("+ unrolls the tray in the HUD", tray().dataset.motion, "open");
   equal("no drawer covers the HUD", drawerOpen(), false);
   equal("it lists every condition", tray().find("tag").length, 15);
   trayChip("Poisoned").fire("click");
@@ -199,8 +233,9 @@ section("The condition tray");
   equal("and says what it does", rule("name"), "Poisoned");
   trayChip("Poisoned").fire("click");
   equal("tapping it again takes it off", statusTags(), []);
-  els.hud.find("hud-exhaustion")[0].find("dot")[1].fire("click");
-  equal("tapping the second exhaustion dot sets level 2", state.play.exhaustion, 2);
+  tray().find("tray-exhaustion")[0].find("dot")[1].fire("click");
+  equal("tapping the second exhaustion dot in the tray sets level 2", state.play.exhaustion, 2);
+  equal("exhaustion shows as a chip", els.hud.find("tag-exh")[0].find("exh-pip").map(pip => pip.dataset.on).join(" "), "on on off off off off");
   equal("speed halves in the HUD", els.hud.find("hud-speed")[0].find("badge-value")[0].textContent, "15");
   equal("the tray explains the level", rule("name"), "Exhaustion 2");
   tap(els.main, "Withdraw");
@@ -212,7 +247,7 @@ section("The condition tray");
   equal("Close rolls it up", tray().dataset.motion, "close");
   await new Promise(done => setTimeout(done, TRAY_CLOSE_MS));
   equal("and then it's gone", els.hud.find("tray").length, 0);
-  els.hud.find("hud-status")[0].find("tag")[0].fire("click");
+  els.hud.find("hud-status")[0].find("tag").find(tag => tag.dataset.condition === "charmed").fire("click");
   equal("tapping a chip in the status line opens the tray to its rules", rule("name"), "Charmed");
 }
 
@@ -223,7 +258,7 @@ section("The sheet is locked until you tap Edit");
   const athletics = () => els.main.find("prof").find(row => row.find("prof-name")[0].textContent === "Athletics");
   check("proficiency bubbles are locked", athletics().find("dot")[0].disabled);
   check("pencil things still work: coins are editable", els.main.find("coin")[0].find("field-input").length === 1);
-  check("pencil things still work: hit dice dots", !els.main.find("vital")[0].find("dot")[0].disabled);
+  check("pencil things still work: hit dice", !els.main.find("die")[0].disabled);
 }
 
 section("Pencil fields are always writable");
@@ -243,13 +278,6 @@ section("Pencil fields are always writable");
   gold.value = "250";
   gold.fire("input");
   equal("coins save as you type", state.character.coins.gp, 250);
-
-  els.hud.find("hp-bar")[0].fire("pointerdown", {clientX: 10});
-  els.hud.find("hp-bar")[0].fire("pointerup");
-  const max = els.drawerbody.find("field-input")[1];
-  max.value = "115";
-  tap(els.drawerbody, "Set");
-  equal("max HP is set from the HP drawer", [state.character.maxHp, hudText("hp-text")], [115, "106 / 115"]);
 }
 
 section("Attacks open in place");
@@ -314,26 +342,29 @@ section("Whimsy");
   const layer = () => document.body.find("fx-layer")[0];
   const effects = kind => layer() ? layer().find("fx").filter(fx => fx.dataset.kind === kind) : [];
   if(layer()) layer().children = [];
-  tap(els.hud, "−");
+  playStoreView.adjustHp(-1);
   check("damage throws blood and a number", effects("blood").length === 1 && effects("number").some(fx => fx.textContent === "−1"));
-  tap(els.hud, "+");
+  playStoreView.adjustHp(1);
   check("healing sparkles", effects("sparkle").length === 1 && effects("number").some(fx => fx.textContent === "+1"));
   els.hud.find("hud-slot")[0].find("dot")[3].fire("click");
   check("spending a slot casts a mana burst", effects("mana").length === 1);
-  tap(els.hud, "+ condition");
+  tap(els.hud, "Add a condition");
   els.hud.find("tray")[0].find("tag").find(tag => tag.textContent === "Poisoned").fire("click");
   const poisoned = els.hud.find("hud-status")[0].find("tag").find(tag => tag.textContent === "Poisoned");
   equal("the chip is marked with its condition", poisoned.dataset.condition, "poisoned");
   equal("a new condition bubbles once", effects("bubbles").length, 1);
-  tap(els.hud, "+");
+  playStoreView.adjustHp(1);
   equal("a redraw doesn't replay it", effects("bubbles").length, 1);
   els.hud.find("hud-slot")[1].find("dot")[0].fire("click");
   equal("tapping the first orb spends that orb", els.hud.find("hud-slot")[1].find("dot").map(dot => dot.dataset.on), ["off", "on", "on"]);
   els.hud.find("hud-slot")[1].find("dot")[0].fire("click");
   equal("tapping it again brings it back", state.play.slotsSpent[2], []);
-  els.main.find("vital")[0].find("dot")[9].fire("click");
-  els.main.find("vital")[0].find("dot")[9].fire("click");
+  state.isEditing = true;
+  render();
+  els.main.find("prof")[1].find("dot")[0].fire("click");
   check("filling a dot stamps a seal", effects("seal").length === 1);
+  state.isEditing = false;
+  render();
   tap(els.main, "Withdraw");
   check("shell defense slams the AC shield", els.hud.find("hud-ac")[0].classList.contains("slam"));
   equal("a condition from a feature plays its own burst", effects("thud").length, 1);
@@ -352,11 +383,8 @@ section("Whimsy");
   deathRow("death").find("dot")[2].fire("click");
   deathRow("death").find("dot")[2].fire("click");
   check("the third failure is grim", effects("doom").some(fx => fx.find("fx-letter").map(letter => letter.textContent).join("") === "Dead"));
-  els.hud.find("hud-exhaustion")[0].find("dot")[0].fire("click");
+  els.hud.find("tray-exhaustion")[0].find("dot")[0].fire("click");
   check("exhaustion sags", effects("weary").length === 1);
-  const diceBefore = effects("dice").length;
-  els.main.find("vital")[0].find("dot")[9].fire("click");
-  check("spending a hit die rolls dice", effects("dice").length === diceBefore + 1);
   els.main.find("feature").find(item => item.find("feature-name")[0].textContent === "Divine Sense").find("dot")[3].fire("click");
   check("spending a feature use shines holy light", effects("holy").length === 1);
 }
@@ -391,7 +419,7 @@ section("Feature uses are independent orbs");
 section("Resting");
 {
   fresh();
-  tap(els.hud, "−");
+  playStoreView.adjustHp(-1);
   tap(els.main, "Lv 1 · 2d8");
   tap(els.hud, "Rest");
   check("the rest drawer opens", drawerOpen() && els.drawertitle.textContent === "Rest");

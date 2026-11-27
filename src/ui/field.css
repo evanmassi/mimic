@@ -1,8 +1,9 @@
 .field{display:block;flex:1}
 .field-input{
-  width:100%;box-sizing:border-box;padding:10px 12px;
+  width:100%;box-sizing:border-box;min-height:var(--control-height);padding:0 var(--control-pad);
   font:var(--size-value) var(--font-value);color:var(--ink);
   background:var(--paper-light);border:var(--line) solid var(--ink-soft);border-radius:var(--radius-control);
-  outline:none;resize:none;
+  box-shadow:var(--control-line);outline:none;resize:none;
 }
+textarea.field-input{padding:10px var(--control-pad)}
 .field-input:focus{border-color:var(--ink)}

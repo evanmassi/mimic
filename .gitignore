@@ -9,3 +9,4 @@ tools/cutout.mjs
 tools/serve.py
 tools/drawArt.py
 docs/working-notes.md
+tools/bakeDice.py

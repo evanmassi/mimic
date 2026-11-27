@@ -15,7 +15,9 @@ import {openSpellSearch} from "./drawers/spellSearchDrawer.js";
 export function slotDots(level){
   const spent = state.play.slotsSpent[level] || [];
   const ready = Array.from({length: state.character.spellcasting.slots[level]}, (_, index) => !spent.includes(index));
-  return makeToggleDots(ready, index => toggleSlot(level, index), "mana");
+  const row = makeToggleDots(ready, index => toggleSlot(level, index), "mana");
+  row.style.setProperty("--shade", level);
+  return row;
 }
 
 function spellButton(spell, index){

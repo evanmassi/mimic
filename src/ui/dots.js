@@ -10,8 +10,7 @@ const FEELS = {
     buzzFill: [25, 90, 35], buzzComplete: [25, 90, 35, 250, 25, 90, 35], buzzEmpty: TAP_MS},
   death: {tone: "blood", fill: "skull", complete: "doom", empty: "puff",
     buzzFill: [140, 70, 260], buzzComplete: [400, 100, 600], buzzEmpty: TAP_MS},
-  weary: {tone: "ink", fill: "weary", empty: "puff", buzzFill: [80, 60, 80], buzzEmpty: TAP_MS, isLevel: true},
-  dice: {tone: "ink", fill: "seal", empty: "dice", buzzFill: TAP_MS, buzzEmpty: [10, 20, 10, 20, 10, 20, 30]}
+  weary: {tone: "ink", fill: "weary", empty: "puff", buzzFill: [80, 60, 80], buzzEmpty: TAP_MS, isLevel: true}
 };
 
 function dotRow(feelName){

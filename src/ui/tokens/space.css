@@ -3,6 +3,9 @@
   --radius-control: 6px;
   --line: 2px;
   --inner-line: inset 0 0 0 3px var(--paper), inset 0 0 0 4px var(--ink-faint);
+  --control-line: inset 0 0 0 2px var(--paper-light), inset 0 0 0 3px var(--ink-faint);
+  --control-pad: 12px;
+  --control-height: 44px;
   --gap: 12px;
   --dot: 18px;
   --page-width: 430px;
