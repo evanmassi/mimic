@@ -58,6 +58,7 @@ const ASSETS = [
   "./src/views/attacks.js",
   "./src/views/combat.js",
   "./src/views/backup.js",
+  "./src/views/chapterTabs.js",
   "./src/views/conditionTray.js",
   "./src/views/hpTray.js",
   "./src/views/scroll.js",

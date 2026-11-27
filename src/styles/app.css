@@ -236,6 +236,16 @@ button{font:inherit;color:inherit}
   .tray-roll,.tray-rod{animation:none}
 }
 .hud-mini-label{font:9px/1 var(--font-label);letter-spacing:var(--track-label);color:var(--ink-soft)}
+.chapter-tabs{
+  display:flex;justify-content:space-between;gap:2px;margin:6px -12px -8px;padding:0 8px;
+  overflow-x:auto;scrollbar-width:none;border-top:1px solid var(--ink-faint);
+}
+.chapter-tabs::-webkit-scrollbar{display:none}
+.chapter-tab{
+  flex:none;padding:7px 6px 6px;border:none;border-bottom:2px solid transparent;background:none;cursor:pointer;
+  font:var(--size-label) var(--font-label);letter-spacing:.12em;color:var(--ink-soft);
+}
+.chapter-tab[data-on="on"]{color:var(--ink);border-bottom-color:var(--ink)}
 .hud-death,.hud-slots{display:flex;align-items:center;flex-wrap:wrap;min-height:32px;margin:0 0 6px}
 .hud-death{gap:8px}
 .hud-death .hud-mini-label{font-size:10px}

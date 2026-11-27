@@ -223,6 +223,22 @@ section("Backup sits folded at the bottom");
   state.isBackupOpen = false;
 }
 
+section("Chapter tabs in the HUD");
+{
+  fresh();
+  const tabs = () => els.hud.find("chapter-tab");
+  equal("one tab per chapter, the first underlined", [tabs().map(tab => tab.textContent), tabs()[0].dataset.on],
+    [["Stats", "Skills", "Attacks", "Spells", "Features", "Gear", "Notes"], "on"]);
+  window.scrolls = [];
+  tabs().find(tab => tab.textContent === "Spells").fire("click");
+  equal("tapping one scrolls there and underlines it", [window.scrolls.length, tabs().find(tab => tab.dataset.on === "on").textContent], [1, "Spells"]);
+  render();
+  equal("the underline survives a redraw", tabs().find(tab => tab.dataset.on === "on").textContent, "Spells");
+  state.character = {...state.character, spellcasting: null, features: state.character.features.filter(feature => !feature.tracker || feature.tracker.kind !== "slotSpend")};
+  render();
+  check("no spellcasting, no Spells tab", !tabs().some(tab => tab.textContent === "Spells"));
+}
+
 section("Shell Defense");
 {
   fresh();

@@ -15,6 +15,7 @@ import {conditionTag, makeConditionTray} from "./conditionTray.js";
 import {makeHpTray} from "./hpTray.js";
 import {rollUp} from "./scroll.js";
 import {makeNotice} from "./notice.js";
+import {makeChapterTabs} from "./chapterTabs.js";
 
 const shown = {hp: null, tempHp: null, ac: null, conditions: null, trayKind: null};
 const TRAYS = {conditions: makeConditionTray, hp: makeHpTray};
@@ -167,6 +168,7 @@ export function renderHud(hud){
   if(low) hud.appendChild(low);
   hud.appendChild(status.row);
   if(kind === "conditions") hud.appendChild(made.tray);
+  hud.appendChild(makeChapterTabs());
   if(made) made.tray.style.setProperty("--tray-height", made.roll.scrollHeight + "px");
   celebrate(hp.bar);
   announce(status.tags);

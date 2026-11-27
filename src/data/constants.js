@@ -12,6 +12,7 @@ export const DRAWER_CLOSE_MS = 220;
 export const TRAY_CLOSE_MS = 320;
 export const UNDO_DEPTH = 5;
 export const HP_STEPS = [1, 5, 10];
+export const CHAPTER_GAP_PX = 8;
 export const HIT_GROUP_MS = 2000;
 export const CONCENTRATION_MIN_DC = 10;
 export const DEATH_SAVE_COUNT = 3;

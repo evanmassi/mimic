@@ -14,14 +14,20 @@ import {renderPersonality} from "./personality.js";
 import {renderNotes} from "./notes.js";
 import {renderBackup} from "./backup.js";
 
-const SECTIONS = [renderIdentity, renderAbilities, renderCombat, renderProficiencies, renderAttacks,
-  renderSpells, renderFeatures, renderEquipment, renderPersonality, renderNotes, renderBackup];
+const SECTIONS = [[renderIdentity, "Stats"], [renderAbilities, null], [renderCombat, null], [renderProficiencies, "Skills"],
+  [renderAttacks, "Attacks"], [renderSpells, "Spells"], [renderFeatures, "Features"], [renderEquipment, "Gear"],
+  [renderPersonality, "Notes"], [renderNotes, null], [renderBackup, null]];
 
 export function render(){
-  renderHud(byId("hud"));
   const main = byId("main");
   main.innerHTML = "";
   main.dataset.editing = state.isEditing ? "on" : "off";
-  SECTIONS.forEach(section => section(main));
+  SECTIONS.forEach(([section, chapter]) => {
+    const before = main.children.length;
+    section(main);
+    const first = main.children[before];
+    if(chapter && first) first.dataset.chapter = chapter;
+  });
   main.appendChild(el("p", "app-version", "Mimic v" + APP_VERSION));
+  renderHud(byId("hud"));
 }

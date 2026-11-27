@@ -11,6 +11,8 @@ Open it at **https://evanmassi.github.io/mimic/**
   unroll quick steps (−10 to +10) and an amount box that shows where Damage, Heal or Temp HP would leave you. Temp HP
   comes off first.
 - Shows conditions, exhaustion and spell slots at the top too. Death saves appear when you drop to 0.
+- Chapter tabs under the HUD (Stats, Skills, Attacks, Spells, Features, Gear, Notes) jump around the long sheet and
+  underline where you are.
 - Works out modifiers, saves, skills, passive perception, attack bonuses and spell DC from your scores and level.
 - Things that change every session are always one tap: coins, equipment, languages, attacks, spells, max HP.
   Things that only change on level-up (scores, proficiencies, class details) sit behind the Edit quill so a stray

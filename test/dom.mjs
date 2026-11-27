@@ -74,11 +74,12 @@ export function installDom(){
     createElement: tag => new FakeNode(tag),
     listeners: {},
     addEventListener(type, fn){ (doc.listeners[type] = doc.listeners[type] || []).push(fn); },
-    body: new FakeNode("body")
+    body: new FakeNode("body"),
+    documentElement: {scrollHeight: 0}
   };
 
   globalThis.document = doc;
-  globalThis.window = {addEventListener: noop, devicePixelRatio: 1};
+  globalThis.window = {addEventListener: noop, devicePixelRatio: 1, scrollY: 0, innerHeight: 0, scrolls: [], scrollTo(options){ this.scrolls.push(options); }};
   globalThis.getComputedStyle = () => ({color: "#2b2118"});
   globalThis.Image = class { set src(value){ this.loaded = value; } };
 
