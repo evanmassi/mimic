@@ -44,6 +44,11 @@ export function openConditionTray(rule){
   changes.notify();
 }
 
+export function openPoolTray(id){
+  state.tray = {kind: "pool", id};
+  changes.notify();
+}
+
 export function openHpTray(){
   state.tray = {kind: "hp"};
   changes.notify();

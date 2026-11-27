@@ -296,6 +296,7 @@ section("Store edits");
   equal("points go back into the pool", state.play.spent.layOnHands, 45);
   playStore.restorePool(pool, 100);
   equal("a pool never fills past full", state.play.spent.layOnHands, 0);
+  equal("a vial drag is clamped to what's spent and what's left", [play.poolDrag(-300, 300, 50, 35), play.poolDrag(300, 300, 50, 35), play.poolDrag(-30, 300, 50, 35)], [-30, 15, -3]);
   fresh();
   [1, 2, 3, 4, 5].forEach(() => playStore.spendSlot(1));
   equal("spending stops when slots run out, rightmost orb first", state.play.slotsSpent[1], [3, 2, 1, 0]);

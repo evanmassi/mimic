@@ -31,6 +31,11 @@ export function deathFate(play){
   return play.deathSaves.successes >= DEATH_SAVE_COUNT ? "stable" : "dying";
 }
 
+export function poolDrag(dx, width, max, left){
+  if(!width) return 0;
+  return Math.max(-left, Math.min(max - left, Math.round(dx / width * max * HP_DRAG_FULL_SWIPE)));
+}
+
 export function dragAmount(dx, width, play, max){
   if(!width) return 0;
   const raw = Math.round(dx / width * max * HP_DRAG_FULL_SWIPE);

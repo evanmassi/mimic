@@ -44,6 +44,20 @@
   --holy-deep: #7a4a0a;
   --holy-glow: rgba(255, 190, 60, 0.6);
   --holy-haze: rgba(240, 180, 70, 0.32);
+
+  /* ward: a feature switched on (shell defense) */
+  --ward: #767344;
+  --ward-deep: #5d5b33;
+
+  /* radiant: divine power (feature uses, smite, lay on hands) */
+  --radiant-core: #ffffff;
+  --radiant-light: #fff0c2;
+  --radiant-warm: #d39c38;
+  --radiant-deep: #bf8a2c;
+  --radiant-rim: #7a5214;
+  --radiant-ink: #5c3d0a;
+  --radiant-glow: rgba(255, 232, 160, 0.95);
+  --radiant-halo: rgba(255, 210, 110, 0.6);
   --life-glow: rgba(120, 200, 110, 0.6);
   --doom: #120607;
 

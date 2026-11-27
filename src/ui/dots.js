@@ -5,7 +5,7 @@ const TAP_MS = 8;
 const FEELS = {
   plain: {tone: "ink", fill: "seal", empty: "puff", buzzFill: TAP_MS, buzzEmpty: TAP_MS},
   mana: {tone: "mana", fill: "charge", empty: "mana", buzzFill: [8, 30, 8], buzzEmpty: [45, 25, 20]},
-  holy: {tone: "gold", fill: "seal", empty: "holy", buzzFill: TAP_MS, buzzEmpty: [15, 50, 15]},
+  holy: {tone: "radiant", fill: "seal", empty: "holy", buzzFill: TAP_MS, buzzEmpty: [15, 50, 15]},
   life: {tone: "verdant", fill: "heartbeat", complete: "stable", empty: "puff",
     buzzFill: [25, 90, 35], buzzComplete: [25, 90, 35, 250, 25, 90, 35], buzzEmpty: TAP_MS},
   death: {tone: "blood", fill: "skull", complete: "doom", empty: "puff",

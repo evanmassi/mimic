@@ -4,12 +4,13 @@
 .fx[data-tone="verdant"]{--fx-color:var(--verdant)}
 .fx[data-tone="gold"]{--fx-color:var(--gold)}
 .fx[data-tone="mana"]{--fx-color:var(--mana)}
+.fx[data-tone="radiant"]{--fx-color:var(--radiant-warm)}
 .fx-bit{position:absolute;left:0;top:0;--side:1}
 .fx-bit:nth-child(odd){--side:-1}
 .fx-bit[data-part="text"],.fx-bit[data-part="heart"],
 .fx-bit[data-part="word"],.fx-bit[data-part="star"],.fx-bit[data-part="zee"]{transform:translate(-50%,-50%);white-space:nowrap}
 .fx-bit[data-part="night"],.fx-bit[data-part="vignette"],.fx-bit[data-part="shade"],
-.fx-bit[data-part="glow"],.fx-bit[data-part="dim"]{position:fixed;inset:0}
+.fx-bit[data-part="glow"],.fx-bit[data-part="dim"],.fx-bit[data-part="veil"]{position:fixed;inset:0}
 
 .fx-bit[data-part="drop"]{
   width:9px;height:12px;margin:-6px 0 0 -4px;background:var(--blood-bright);
@@ -77,7 +78,7 @@
 
 .fx-bit[data-part="ray"]{
   width:3px;height:34px;margin:-34px 0 0 -1.5px;transform-origin:50% 100%;
-  background:linear-gradient(transparent,var(--holy-light),transparent);
+  background:linear-gradient(transparent,var(--radiant-core),transparent);filter:drop-shadow(0 0 3px var(--radiant-glow));
   transform:rotate(calc(var(--i) * 360deg / var(--n)));animation:fx-ray 750ms ease-out
 }
 
@@ -160,6 +161,10 @@
 }
 
 .fx-bit[data-part="dim"]{background:var(--ink);animation:fx-dim 1100ms ease-in-out}
+.fx-bit[data-part="veil"]{
+  background:radial-gradient(ellipse at center,transparent 50%,color-mix(in oklab,var(--ward-deep) 45%,transparent) 80%,color-mix(in oklab,var(--ward-deep) 70%,transparent) 100%);
+  animation:fx-veil 900ms ease-out both
+}
 .fx-bit[data-part="drip"]{
   width:7px;height:11px;margin:-5px 0 0 -3px;background:var(--ink-soft);
   border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;animation:fx-sag 1100ms cubic-bezier(.5,0,.8,.6)
@@ -315,6 +320,7 @@
   70%{rotate:0;opacity:1}
   100%{opacity:0;translate:0 14px}
 }
+@keyframes fx-veil{0%{opacity:0;transform:scale(1.15)}35%{opacity:1;transform:scale(1)}100%{opacity:0}}
 @keyframes fx-dim{
   0%,100%{opacity:0}
   40%{opacity:.18}

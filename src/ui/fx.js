@@ -28,6 +28,7 @@ const KINDS = {
   bind: {cinch: 2},
   daze: {star: 8},
   sleep: {dim: 1, zee: 3},
+  withdraw: {veil: 1},
   shatter: {glint: 7},
   fall: {flash: 1, vignette: 1, glint: 20}
 };

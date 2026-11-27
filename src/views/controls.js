@@ -9,6 +9,44 @@ export function diceMark(roll){
   return mark;
 }
 
+export function numberBox(placeholder, value){
+  const input = el("input");
+  input.type = "text";
+  input.inputMode = "numeric";
+  input.pattern = "[0-9]*";
+  input.placeholder = placeholder;
+  input.value = value;
+  input.addEventListener("input", () => { input.value = input.value.replace(/\D/g, ""); });
+  return input;
+}
+
+export const readAmount = input => {
+  const value = parseInt(input.value, 10);
+  return value > 0 ? value : null;
+};
+
+export function amountRow(outcomes){
+  const input = numberBox("Amount", "");
+  const shown = outcomes.map(outcome => {
+    const result = el("span", "outcome-result", outcome.cost ? outcome.result(outcome.cost) : "");
+    const button = actionButton("", {tone: outcome.tone}, () => {
+      const amount = outcome.cost || readAmount(input);
+      if(amount !== null) outcome.apply(amount);
+    });
+    button.classList.add("outcome");
+    button.disabled = Boolean(outcome.isOff);
+    button.append(el("span", "outcome-word", outcome.label), result);
+    return {button, result, outcome};
+  });
+  input.addEventListener("input", () => {
+    const amount = readAmount(input);
+    shown.filter(({outcome}) => !outcome.cost).forEach(({result, outcome}) => { result.textContent = amount === null ? "" : outcome.result(amount); });
+  });
+  const row = el("div", "amount-row");
+  row.append(makeField(input), ...shown.map(({button}) => button));
+  return row;
+}
+
 export function actionButton(label, options, onPress){
   const button = makeButton(el("button"), Object.assign({label}, options));
   button.addEventListener("click", onPress);

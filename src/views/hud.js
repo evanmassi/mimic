@@ -28,6 +28,12 @@ function badge(className, value, label, isChanged){
   return box;
 }
 
+function acBadge(ac, base){
+  const box = badge("hud-ac", ac, "AC", ac !== base);
+  if(ac !== base) box.appendChild(el("span", "badge-tag", signed(ac - base)));
+  return box;
+}
+
 function tools(){
   const canUndo = state.history.length > 0;
   const undoButton = actionButton("Undo", {icon: "undo", tone: canUndo ? "blood" : "ink"}, undo);
@@ -44,12 +50,12 @@ function topRow(){
   const row = el("div", "hud-top");
   const ac = armorClass(character, play);
   const moves = speed(character, play);
-  const acBadge = badge("hud-ac", ac, "AC", ac !== character.armorClass);
-  if(shown.ac !== null && ac !== shown.ac) acBadge.classList.add("slam");
+  const acShield = acBadge(ac, character.armorClass);
+  if(shown.ac !== null && ac !== shown.ac) acShield.classList.add("slam");
   shown.ac = ac;
   row.append(
     el("div", "hud-name", character.name),
-    acBadge,
+    acShield,
     badge("hud-speed", moves, "speed", moves !== character.speed),
     tools());
   return row;
@@ -156,7 +162,7 @@ export const playSlotSpent = (level, index) => playDot("mana", slotOrbs[level].c
 
 export function renderHud(hud){
   hud.innerHTML = "";
-  const kind = state.tray ? state.tray.kind : null;
+  const kind = state.tray && TRAYS[state.tray.kind] ? state.tray.kind : null;
   const made = kind ? TRAYS[kind](kind !== shown.trayKind) : null;
   const hp = hpRow(() => kind === "hp" ? rollUp(made.tray) : openHpTray());
   const status = statusRow(kind === "conditions" ? made.tray : null);

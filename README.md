@@ -18,7 +18,8 @@ Open it at **https://evanmassi.github.io/mimic/**
   Things that only change on level-up (scores, proficiencies, class details) sit behind the Edit quill so a stray
   tap can't change them.
 - Spell slots are sapphires, a shade deeper at each level, that you tap to spend or get back, each one on its own.
-- Tracks features: uses that come back on a rest, pools like Lay on Hands, switches like a Tortle's Shell Defense
+- Tracks features: uses that come back on a rest, pools like Lay on Hands (tap the vial to heal yourself, heal an
+  ally or cure, with a preview of where each leaves you), switches like a Tortle's Shell Defense (a shell you tap to withdraw, with the +4 shown on your AC)
   that change your AC and speed, and Divine Smite buttons that spend a slot.
 - Short and long rests bring back what they should.
 - Backup, folded at the very bottom, saves your character, session and notes to one small file (the share sheet on

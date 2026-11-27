@@ -90,14 +90,14 @@ section("HP buttons and the drag bar");
   again.fire("pointerdown", {clientX: 100});
   again.fire("pointermove", {clientX: 103});
   again.fire("pointerup");
-  check("a tap opens the HP scroll", els.hud.find("hp-entry").length === 1);
-  const amount = els.hud.find("hp-entry")[0].find("field-input")[0];
+  check("a tap opens the HP scroll", els.hud.find("amount-row").length === 1);
+  const amount = els.hud.find("amount-row")[0].find("field-input")[0];
   amount.value = "2x0";
   amount.fire("input");
   equal("the amount takes digits only", amount.value, "20");
-  equal("each outcome shows where you'd land", els.hud.find("hp-result").map(result => result.textContent), ["→ 54", "→ 94", "+20"]);
-  els.hud.find("hp-outcome").find(button => button.find("hp-outcome-word")[0].textContent === "Temp HP").fire("click");
-  equal("temp HP applies and the scroll rolls up", [state.play.tempHp, hudText("hp-text"), els.hud.find("hp-entry").length], [20, "74 / 106  +20", 0]);
+  equal("each outcome shows where you'd land", els.hud.find("outcome-result").map(result => result.textContent), ["→ 54", "→ 94", "+20"]);
+  els.hud.find("outcome").find(button => button.find("outcome-word")[0].textContent === "Temp HP").fire("click");
+  equal("temp HP applies and the scroll rolls up", [state.play.tempHp, hudText("hp-text"), els.hud.find("amount-row").length], [20, "74 / 106  +20", 0]);
   tapBar();
   els.hud.find("hp-max-change")[0].fire("click");
   els.hud.find("hp-max")[0].find("field-input")[0].value = "110";
@@ -247,8 +247,22 @@ section("Shell Defense");
   equal("the AC badge is marked as changed", els.hud.find("hud-ac")[0].dataset.changed, "on");
   equal("speed goes to 0", els.hud.find("hud-speed")[0].find("badge-value")[0].textContent, "0");
   check("prone shows as a tag", els.hud.find("tag").some(tag => tag.textContent === "Prone"));
+  const shell = () => els.main.find("feature").find(item => item.find("feature-name")[0].textContent === "Shell Defense");
+  equal("the shell clenches, the card says Withdrawn and offers Emerge, and AC shows its +4",
+    [shell().find("toggle-token")[0].dataset.motion, shell().find("toggle-stamp")[0].textContent, shell().find("toggle-label")[0].textContent, els.hud.find("badge-tag")[0].textContent],
+    ["close", "Withdrawn", "Emerge", "+4"]);
+  check("withdrawing darkens the edges for a moment", document.body.find("fx").some(fx => fx.dataset.kind === "withdraw"));
   tap(els.main, "Emerge");
-  equal("emerging restores AC", els.hud.find("hud-ac")[0].find("badge-value")[0].textContent, "19");
+  equal("emerging restores AC, opens the shell and clears the stamp", [els.hud.find("hud-ac")[0].find("badge-value")[0].textContent, shell().find("toggle-token")[0].dataset.motion,
+    shell().find("toggle-stamp").length, els.hud.find("badge-tag").length], ["19", "open", 0, 0]);
+  const plain = state.character.features.map(feature => feature.id === "shellDefense"
+    ? {...feature, tracker: {kind: "toggle", onLabel: "Emerge", offLabel: "Withdraw", effects: feature.tracker.effects}} : feature);
+  state.character = {...state.character, features: plain};
+  render();
+  tap(els.main, "Withdraw");
+  equal("a toggle saved without a token or stamp is a plain button, and still works",
+    [shell().find("toggle-token").length, shell().find("toggle-stamp").length, byText(shell(), "Emerge").dataset.chosen, els.hud.find("hud-ac")[0].find("badge-value")[0].textContent],
+    [0, 0, "on", "23"]);
 }
 
 section("The condition tray");
@@ -445,13 +459,40 @@ section("Slots, smite and resources");
   tap(els.main, "Lv 2 · 3d8");
   equal("smiting at level 2 spends a level 2 slot", state.play.slotsSpent[2], [2]);
   equal("the HUD slot row follows", els.hud.find("hud-slot")[1].find("dot").filter(dot => dot.dataset.on === "on").length, 2);
-  tap(els.main, "−5");
-  equal("lay on hands spends from the pool", els.main.find("pool-count")[0].textContent, "45/50");
-  tap(els.main, "+1");
-  equal("+1 puts a point back", els.main.find("pool-count")[0].textContent, "46/50");
-  tap(els.main, "+5");
-  equal("+5 fills it no further than full", els.main.find("pool-count")[0].textContent, "50/50");
-  check("adding is off while the pool is full", byText(els.main, "+1").disabled && byText(els.main, "+5").disabled);
+  playStoreView.takeDamage(26);
+  const vial = () => els.main.find("vial")[0];
+  const tapVial = () => {
+    vial().fire("pointerdown", {clientX: 100});
+    vial().fire("pointerup");
+  };
+  tapVial();
+  const outcome = word => els.main.find("outcome").find(button => button.find("outcome-word")[0].textContent === word);
+  equal("tapping the vial unrolls its scroll", [els.main.find("pool")[0].find("tray").length, outcome("Cure · 5").find("outcome-result")[0].textContent], [1, "pool → 45"]);
+  const amount = els.main.find("pool")[0].find("field-input")[0];
+  amount.value = "10";
+  amount.fire("input");
+  equal("typing previews each outcome", [outcome("Heal me"), outcome("Heal ally")].map(button => button.find("outcome-result")[0].textContent), ["you → 90", "pool → 40"]);
+  outcome("Heal me").fire("click");
+  equal("heal me spends and heals, and rolls the scroll up", [state.play.spent.layOnHands, state.play.hp, els.main.find("pool")[0].find("tray").length, vial().find("vial-text")[0].textContent],
+    [10, 90, 0, "40 / 50"]);
+  tapVial();
+  outcome("Cure · 5").fire("click");
+  equal("cure always costs 5", state.play.spent.layOnHands, 15);
+  playStoreView.undo();
+  equal("and undo takes it back", state.play.spent.layOnHands, 10);
+  state.tray = null;
+  render();
+  vial().clientWidth = 300;
+  vial().fire("pointerdown", {clientX: 200});
+  vial().fire("pointermove", {clientX: 100});
+  equal("dragging the vial previews a spend", [vial().find("vial-count")[0].textContent, vial().find("vial-delta")[0].textContent, state.play.spent.layOnHands], ["30 / 50", "−10", 10]);
+  vial().fire("pointerup");
+  equal("letting go spends it", state.play.spent.layOnHands, 20);
+  vial().clientWidth = 300;
+  vial().fire("pointerdown", {clientX: 0});
+  vial().fire("pointermove", {clientX: 2000});
+  vial().fire("pointerup");
+  equal("dragging right puts points back, never past full", state.play.spent.layOnHands, 0);
 }
 
 section("Feature uses are independent orbs");

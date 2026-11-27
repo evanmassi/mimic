@@ -11,7 +11,7 @@
 .btn[data-tone="blood"]{border-color:var(--blood);color:var(--blood)}
 .btn[data-tone="verdant"]{border-color:var(--verdant);color:var(--verdant)}
 .btn[data-tone="arcane"]{border-color:var(--arcane);color:var(--arcane)}
-.btn[data-tone="holy"]{border-color:var(--holy-deep);color:var(--holy-deep);box-shadow:inset 0 0 0 2px var(--paper-light),inset 0 0 8px var(--holy-glow)}
+.btn[data-tone="radiant"]{border-color:var(--radiant-rim);color:var(--radiant-ink);box-shadow:inset 0 0 0 2px var(--paper-light),inset 0 0 10px var(--radiant-glow),0 0 8px var(--radiant-halo)}
 .btn[data-tone="mana"]{border-color:var(--mana-deep);color:var(--mana-deep);box-shadow:inset 0 0 0 2px var(--paper-light),inset 0 0 8px var(--mana-glow)}
 .btn[data-chosen="on"]{background:var(--ink);color:var(--ink-on-dark);box-shadow:none}
 .btn[data-tone="arcane"][data-chosen="on"]{background:var(--arcane);color:var(--ink-on-dark)}

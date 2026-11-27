@@ -115,6 +115,7 @@ export function spendPool(feature, amount, isOnSelf){
   commit(isOnSelf ? healed(next, used, currentMax()) : next);
 }
 
+
 export function restorePool(feature, amount){
   edit({spent: {...state.play.spent, [feature.id]: Math.max(0, (state.play.spent[feature.id] || 0) - amount)}});
 }
