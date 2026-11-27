@@ -1,9 +1,9 @@
-import {loadCharacter, saveCharacter, loadPlay, savePlay, loadNotes, saveNotes} from "./storage.js";
+import {loadCharacter, saveCharacter, loadPlay, savePlay, loadNotes, saveNotes, loadLastBackup} from "./storage.js";
 import {SAMPLE_CHARACTER, SAMPLE_NOTES} from "../data/sampleCharacter.js";
 import {newPlay} from "../rules/play.js";
 
 export const state = {character: null, play: null, notes: null, isEditing: false, openAttack: null, tray: null,
-  history: [], notice: null};
+  history: [], notice: null, lastBackup: null, isBackupOpen: false};
 
 function channel(){
   const listeners = new Set();
@@ -21,10 +21,16 @@ export function hydrate(){
   state.notes = loadNotes() || structuredClone(SAMPLE_NOTES);
   state.history = [];
   state.notice = null;
+  state.lastBackup = loadLastBackup();
 }
 
 export function toggleEditing(){
   state.isEditing = !state.isEditing;
+  changes.notify();
+}
+
+export function toggleBackupOpen(){
+  state.isBackupOpen = !state.isBackupOpen;
   changes.notify();
 }
 

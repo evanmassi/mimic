@@ -17,6 +17,8 @@ const spellRules = await import("../src/rules/spells.js");
 const {textBlocks} = await import("../src/rules/markdown.js");
 const {levelLabel} = await import("../src/rules/format.js");
 const {SPELL_SOURCES} = await import("../src/data/spellSources.js");
+const backupRules = await import("../src/rules/backup.js");
+const backupStore = await import("../src/store/backup.js");
 const {loadSpellLibrary} = await import("../src/store/spellLibrary.js");
 
 const nawe = () => structuredClone(SAMPLE_CHARACTER);
@@ -112,6 +114,28 @@ section("Conditions mark your rolls");
   equal("exhaustion 3 marks attacks and every save", [marks({...p, exhaustion: 3}), saves({...p, exhaustion: 3})], [["dis", "dis", null], ["dis", "dis", "dis", "dis", "dis", "dis"]]);
   equal("exhaustion against shell defense evens STR and CON", saves({...shelled, exhaustion: 3}), ["even", "dis", "even", "dis", "dis", "dis"]);
   equal("a failed save beats advantage", sheet.rollMark(c, {...shelled, conditions: ["stunned"]}, "save", "str"), "fail");
+}
+
+section("Backups");
+{
+  fresh();
+  playStore.takeDamage(30);
+  const savedAt = "2026-11-20T18:00:00.000Z";
+  const file = JSON.stringify(backupRules.makeBackup(state.character, state.play, state.notes, savedAt));
+  const read = backupRules.readBackup(file);
+  equal("a backup reads back the sheet, session and notes", [read.character.name, read.play.hp, read.notes.text, read.savedAt], ["Nawe Ironshell", 76, state.notes.text, savedAt]);
+  equal("the file is named for the character and day", backupRules.backupFileName(state.character, savedAt), "Nawe Ironshell - Mimic backup 2026-11-20.json");
+  equal("anything else is turned away", ["not json", "{}", JSON.stringify({app: "mimic", format: 99, character: read.character}), JSON.stringify({app: "other", format: 1, character: read.character}),
+    JSON.stringify({app: "mimic", format: 1, character: {name: "No scores", level: 1}})].map(backupRules.readBackup), [null, null, null, null, null]);
+  equal("a backup without a session starts a fresh one", backupRules.readBackup(JSON.stringify({app: "mimic", format: 1, character: read.character})).play.hp, 106);
+  fresh();
+  playStore.takeDamage(5);
+  backupStore.restoreBackup({...read, character: {...read.character, level: 11}});
+  equal("restoring replaces everything and clears undo", [state.character.level, state.play.hp, state.history.length], [11, 76, 0]);
+  equal("and it sticks after a reload", [JSON.parse(localStorage.getItem(CHARACTER_KEY)).level, JSON.parse(localStorage.getItem(PLAY_KEY)).hp], [11, 76]);
+  backupStore.markBackupSaved(savedAt);
+  hydrate();
+  equal("the last backup time is remembered", state.lastBackup, savedAt);
 }
 
 section("Hit points");

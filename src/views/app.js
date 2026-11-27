@@ -12,9 +12,10 @@ import {renderFeatures} from "./features.js";
 import {renderEquipment} from "./equipment.js";
 import {renderPersonality} from "./personality.js";
 import {renderNotes} from "./notes.js";
+import {renderBackup} from "./backup.js";
 
 const SECTIONS = [renderIdentity, renderAbilities, renderCombat, renderProficiencies, renderAttacks,
-  renderSpells, renderFeatures, renderEquipment, renderPersonality, renderNotes];
+  renderSpells, renderFeatures, renderEquipment, renderPersonality, renderNotes, renderBackup];
 
 export function render(){
   renderHud(byId("hud"));

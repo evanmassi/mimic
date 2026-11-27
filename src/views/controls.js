@@ -43,6 +43,11 @@ const READ = {
 };
 const SHOW = {number: String, text: String, paragraph: String, lines: list => list.join("\n")};
 
+const grow = box => {
+  box.style.height = "auto";
+  box.style.height = box.scrollHeight + "px";
+};
+
 export function editableField(kind, value, onSave, label){
   const isLong = kind === "paragraph" || kind === "lines";
   const input = el(isLong ? "textarea" : "input");
@@ -54,8 +59,10 @@ export function editableField(kind, value, onSave, label){
   input.value = SHOW[kind](value);
   input.setAttribute("aria-label", label);
   input.addEventListener("input", () => {
+    if(isLong) grow(input);
     const read = READ[kind](input.value);
     if(read !== null) onSave(read);
   });
+  if(isLong) setTimeout(() => grow(input));
   return makeField(input);
 }

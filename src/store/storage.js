@@ -1,4 +1,4 @@
-import {CHARACTER_KEY, PLAY_KEY, NOTES_KEY} from "../data/constants.js";
+import {CHARACTER_KEY, PLAY_KEY, NOTES_KEY, BACKUP_KEY} from "../data/constants.js";
 import {formulaValue} from "../rules/sheet.js";
 
 function readJson(key){
@@ -35,3 +35,6 @@ export const savePlay = play => writeJson(PLAY_KEY, play);
 
 export const loadNotes = () => readJson(NOTES_KEY);
 export const saveNotes = notes => writeJson(NOTES_KEY, notes);
+
+export const loadLastBackup = () => readJson(BACKUP_KEY);
+export const saveLastBackup = savedAt => writeJson(BACKUP_KEY, savedAt);

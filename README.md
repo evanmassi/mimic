@@ -19,6 +19,8 @@ Open it at **https://evanmassi.github.io/mimic/**
 - Tracks features: uses that come back on a rest, pools like Lay on Hands, switches like a Tortle's Shell Defense
   that change your AC and speed, and Divine Smite buttons that spend a slot.
 - Short and long rests bring back what they should.
+- Backup, folded at the very bottom, saves your character, session and notes to one small file (the share sheet on
+  a phone, a download on a computer) and loads one back after showing you what it would replace.
 - Undo, at the top, takes back the last few changes that are hard to redo by hand: damage, healing, a Smite,
   a rest. Taps you can simply tap again, like conditions and orbs, don't need it.
 - Has a spellbook of nearly 2,000 openly licensed spells (both SRDs plus third-party and homebrew books, each

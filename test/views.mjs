@@ -10,6 +10,7 @@ const {mountDrawer} = await import("../src/views/drawers/drawer.js");
 const {loadSpellLibrary} = await import("../src/store/spellLibrary.js");
 const {TRAY_CLOSE_MS} = await import("../src/data/constants.js");
 const playStoreView = await import("../src/store/play.js");
+const {openBackupDrawer} = await import("../src/views/drawers/backupDrawer.js");
 
 mountDrawer(els.drawer, els.drawertitle, els.drawerbody, els.drawerclose, els.drawerback);
 changes.subscribe(render);
@@ -202,6 +203,24 @@ section("Hit dice are a rack of the character's die");
   equal("tapping the ghost brings it back, dropping in", [state.play.hitDiceSpent, dice()[9].dataset.on, dice()[9].dataset.motion], [0, "on", "in"]);
   render();
   equal("a later redraw doesn't replay it", dice()[9].dataset.motion, "still");
+}
+
+section("Backup sits folded at the bottom");
+{
+  fresh();
+  state.isBackupOpen = false;
+  render();
+  const box = () => els.main.find("backup")[0];
+  equal("it starts folded, saying when you last saved", [box().dataset.open, box().find("backup-when")[0].textContent, els.main.find("backup-actions").length], ["off", "Never saved", 0]);
+  box().find("backup-toggle")[0].fire("click");
+  equal("a tap unfolds Save and Load", box().find("backup-actions")[0].children.map(button => button.textContent), ["Save a backup", "Load a backup"]);
+  openBackupDrawer(null);
+  check("a stray file is turned away without changes", drawerOpen() && els.drawerbody.find("backup-warn")[0].textContent.startsWith("This file isn't a Mimic backup"));
+  openBackupDrawer({savedAt: "2026-11-20T18:00:00.000Z", character: {...state.character, level: 11}, play: state.play, notes: state.notes});
+  equal("a real one shows who's here and who's in the file", els.drawerbody.find("backup-meta").map(meta => meta.textContent), ["Paladin 10 · on this phone now", "Paladin 11 · backup from Nov 20, 2026"]);
+  tap(els.drawerbody, "Replace with the backup");
+  equal("replacing loads it", state.character.level, 11);
+  state.isBackupOpen = false;
 }
 
 section("Shell Defense");

@@ -3,6 +3,8 @@ export const APP_VERSION = "0.1.0";
 export const CHARACTER_KEY = "mimic.character.v1";
 export const PLAY_KEY = "mimic.play.v1";
 export const NOTES_KEY = "mimic.notes.v1";
+export const BACKUP_KEY = "mimic.backup.v1";
+export const BACKUP_FORMAT = 1;
 
 export const HP_DRAG_FULL_SWIPE = 0.6;
 export const HP_DRAG_TAP_PX = 6;
