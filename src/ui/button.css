@@ -15,3 +15,15 @@
 .btn[data-tone="mana"]{border-color:var(--mana-deep);color:var(--mana-deep);box-shadow:inset 0 0 0 2px var(--paper-light),inset 0 0 8px var(--mana-glow)}
 .btn[data-chosen="on"]{background:var(--ink);color:var(--ink-on-dark);box-shadow:none}
 .btn[data-tone="arcane"][data-chosen="on"]{background:var(--arcane);color:var(--ink-on-dark)}
+
+.btn[data-icon]{
+  width:34px;height:34px;flex:none;display:grid;place-items:center;padding:0;
+  border:none;border-radius:50%;background:none;box-shadow:none;color:var(--ink-soft);
+}
+.btn[data-icon]::before{content:"";width:20px;height:20px;background:currentColor;mask:var(--btn-icon) center/contain no-repeat}
+.btn[data-icon="undo"]{--btn-icon:var(--icon-undo)}
+.btn[data-icon="quill"]{--btn-icon:var(--icon-quill)}
+.btn[data-icon="moon"]{--btn-icon:var(--icon-moon)}
+.btn[data-icon][data-tone="blood"]{color:var(--blood-deep)}
+.btn[data-icon][data-chosen="on"]{background:var(--ink);color:var(--ink-on-dark)}
+.btn[data-icon]:disabled{opacity:.28}

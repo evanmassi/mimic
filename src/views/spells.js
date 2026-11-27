@@ -2,13 +2,13 @@ import {MAX_SPELL_LEVEL} from "../data/constants.js";
 import {state} from "../store/state.js";
 import {toggleSlot} from "../store/play.js";
 import {setSlotTotal} from "../store/character.js";
-import {spellSaveDc, spellAttack} from "../rules/sheet.js";
+import {spellSaveDc, spellAttack, rollMark} from "../rules/sheet.js";
 import {spellLevels} from "../rules/spells.js";
 import {signed} from "../rules/format.js";
 import {makeToggleDots} from "../ui/dots.js";
 import {makeFrame} from "../ui/frame.js";
 import {el} from "./dom.js";
-import {statBox, actionButton, editableField} from "./controls.js";
+import {statBox, actionButton, editableField, diceMark} from "./controls.js";
 import {openSpellDrawer} from "./drawers/spellDrawer.js";
 import {openSpellSearch} from "./drawers/spellSearchDrawer.js";
 
@@ -44,10 +44,10 @@ export function renderSpells(main){
   if(!casting) return;
   const box = makeFrame(el("section"), "Spells · tap a spell to read or swap it");
   const head = el("div", "spell-head");
-  head.append(
-    statBox("spell-stat", casting.ability.toUpperCase(), "Ability"),
-    statBox("spell-stat", spellSaveDc(character), "Save DC"),
-    statBox("spell-stat", signed(spellAttack(character)), "Attack"));
+  const attack = statBox("spell-stat", signed(spellAttack(character)), "Attack");
+  const roll = rollMark(character, state.play, "attack");
+  if(roll) attack.appendChild(diceMark(roll));
+  head.append(statBox("spell-stat", casting.ability.toUpperCase(), "Ability"), statBox("spell-stat", spellSaveDc(character), "Save DC"), attack);
   box.appendChild(head);
   if(state.isEditing) box.append(el("span", "stat-label", "Slots per level"), slotTotals(casting));
   spellLevels(casting).forEach(level => {

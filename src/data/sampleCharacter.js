@@ -44,7 +44,8 @@ export const SAMPLE_CHARACTER = {
   features: [
     {id: "shellDefense", name: "Shell Defense",
       text: "Action: withdraw into your shell. +4 AC and advantage on STR and CON saves. You are prone, speed 0, disadvantage on DEX saves, no reactions. Bonus action to emerge.",
-      tracker: {kind: "toggle", onLabel: "Emerge", offLabel: "Withdraw", effects: {acBonus: 4, speedOverride: 0, conditions: ["prone"]}}},
+      tracker: {kind: "toggle", onLabel: "Emerge", offLabel: "Withdraw", effects: {acBonus: 4, speedOverride: 0, conditions: ["prone"],
+        rolls: {saves: {str: "adv", con: "adv", dex: "dis"}}}}},
     {id: "divineSmite", name: "Divine Smite",
       text: "On a melee hit, spend a spell slot for radiant damage. +1d8 against undead or fiends.",
       tracker: {kind: "slotSpend", die: "d8", baseDice: 2, maxDice: 5}},

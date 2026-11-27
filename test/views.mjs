@@ -15,7 +15,7 @@ mountDrawer(els.drawer, els.drawertitle, els.drawerbody, els.drawerclose, els.dr
 changes.subscribe(render);
 
 const nodes = root => root.children.flatMap(child => [child, ...nodes(child)]);
-const byText = (root, text) => nodes(root).find(node => node.tag === "button" && node.textContent === text);
+const byText = (root, text) => nodes(root).find(node => node.tag === "button" && (node.textContent === text || node.attrs["aria-label"] === text));
 const tap = (root, text) => byText(root, text).fire("click");
 const drawerOpen = () => !els.drawer.hidden && !("closing" in els.drawer.dataset);
 const hudText = className => els.hud.find(className)[0].textContent;
@@ -88,12 +88,18 @@ section("The slip under the HP bar");
   fresh();
   tap(els.hud, "−");
   const slip = () => els.hud.find("notice")[0];
-  equal("a change leaves a slip saying what happened", [slip().find("notice-value")[0].textContent, slip().find("notice-label")[0].textContent], ["−1", "HP"]);
-  tap(slip(), "Undo");
-  equal("Undo puts it back", state.play.hp, 106);
+  const undoIcon = () => byText(els.hud, "Undo");
+  equal("a change leaves no slip, just Undo ready in the HUD", [els.hud.find("notice").length, undoIcon().disabled, undoIcon().dataset.tone], [0, false, "blood"]);
+  tap(els.hud, "Undo");
+  equal("Undo puts it back and greys out", [state.play.hp, undoIcon().disabled], [106, true]);
+  playStoreView.toggleCondition("poisoned");
+  equal("a condition tap leaves no slip", els.hud.find("notice").length, 0);
+  playStoreView.toggleCondition("poisoned");
+  els.hud.find("hud-slot")[0].find("dot")[0].fire("click");
+  equal("nor does an orb tap", [els.hud.find("notice").length, state.play.slotsSpent[1]], [0, [0]]);
   playStoreView.toggleCondition("concentrating");
   tap(els.hud, "−");
-  equal("damage while concentrating asks for the save", [slip().dataset.kind, slip().find("notice-stamp-value")[0].textContent, slip().find("notice-bonus")[0].textContent], ["concentration", "10", "+4"]);
+  equal("damage while concentrating asks for the save", [slip().find("notice-stamp-value")[0].textContent, slip().find("notice-bonus")[0].textContent], ["10", "+4"]);
   tap(slip(), "Lost");
   check("Lost drops Concentrating", !state.play.conditions.includes("concentrating"));
   playStoreView.toggleCondition("concentrating");
@@ -140,6 +146,28 @@ section("The aura seal on the saves");
   playStoreView.adjustHp(-200);
   equal("dropping to 0 HP puts the aura out", [saves().dataset.seal, seal().dataset.lit], ["out", "off"]);
   check("other boxes have no seal", !("seal" in els.main.find("frame").find(frame => frame.find("frame-label")[0].textContent === "Skills").dataset));
+}
+
+section("Roll marks");
+{
+  fresh();
+  const frame = label => els.main.find("frame").find(one => one.find("frame-label")[0].textContent === label);
+  const marksIn = node => node.find("dice-mark").map(mark => mark.dataset.roll);
+  const initiative = () => els.main.find("combat-box").find(box => box.find("stat-label")[0].textContent === "Initiative");
+  const spellAttack = () => els.main.find("spell-stat").find(box => box.find("stat-label")[0].textContent === "Attack");
+  check("no marks on a fresh sheet", els.main.find("dice-mark").length === 0 && els.main.find("foes-note").length === 0);
+  playStoreView.toggleCondition("poisoned");
+  equal("poisoned marks the skills once, not every row", [marksIn(frame("Skills").find("frame-label")[0]), frame("Skills").find("prof").flatMap(marksIn)], [["dis"], []]);
+  equal("and initiative, the attack column and the spell attack", [marksIn(initiative()), marksIn(els.main.find("attack-head")[0]), marksIn(spellAttack())], [["dis"], ["dis"], ["dis"]]);
+  equal("the saves stay clear", marksIn(frame("Saving throws")), []);
+  playStoreView.toggleCondition("poisoned");
+  playStoreView.toggleActive("shellDefense");
+  const saveRows = () => frame("Saving throws").find("prof").map(row => [row.find("prof-name")[0].textContent, marksIn(row)[0] || null]);
+  equal("shell defense marks only the saves it changes", saveRows().filter(([, roll]) => roll), [["Strength", "adv"], ["Dexterity", "dis"], ["Constitution", "adv"]]);
+  equal("prone warns about foes up close", els.main.find("foes-note")[0].textContent, "Near foes adv.");
+  playStoreView.toggleActive("shellDefense");
+  playStoreView.setExhaustion(3);
+  equal("exhaustion 3 marks the saves once", [marksIn(frame("Saving throws").find("frame-label")[0]), frame("Saving throws").find("prof").flatMap(marksIn)], [["dis"], []]);
 }
 
 section("Shell Defense");
@@ -248,7 +276,7 @@ section("Edit mode");
 {
   fresh();
   tap(els.hud, "Edit");
-  equal("the button turns into Done", els.hud.find("btn").some(button => button.textContent === "Done"), true);
+  equal("the quill turns solid", byText(els.hud, "Done editing").dataset.chosen, "on");
   equal("the sheet is marked as editing", els.main.dataset.editing, "on");
   check("an editing hint shows", els.main.find("edit-hint").length === 1);
 
@@ -274,7 +302,7 @@ section("Edit mode");
   level4.value = "1";
   level4.fire("input");
 
-  tap(els.hud, "Done");
+  tap(els.hud, "Done editing");
   equal("Done leaves edit mode", [els.main.dataset.editing, hudText("hud-name")], ["off", "Shelly"]);
   check("and the sheet shows plain text again", els.main.find("banner-name").length === 1);
   equal("a new slot level reaches the HUD", els.hud.find("hud-slot").length, 4);

@@ -14,7 +14,6 @@ const {state, hydrate} = await import("../src/store/state.js");
 const playStore = await import("../src/store/play.js");
 const characterStore = await import("../src/store/character.js");
 const spellRules = await import("../src/rules/spells.js");
-const {describeChange} = await import("../src/rules/changes.js");
 const {textBlocks} = await import("../src/rules/markdown.js");
 const {levelLabel} = await import("../src/rules/format.js");
 const {SPELL_SOURCES} = await import("../src/data/spellSources.js");
@@ -92,6 +91,27 @@ section("Seals on the saves");
   equal("a flat bonus stays lit at 0 HP", sheet.saveSeals(c, {...p, hp: 0}).map(seal => [seal.label, seal.amount, seal.isLit]), [["Aura", 1, false], ["Ring", 1, true]]);
   c.features = c.features.filter(feature => !feature.effects);
   equal("no save bonus, no seals", sheet.saveSeals(c, p), []);
+}
+
+section("Conditions mark your rolls");
+{
+  const c = nawe();
+  const p = play.newPlay(c);
+  const marks = q => [sheet.rollMark(c, q, "attack"), sheet.rollMark(c, q, "check"), sheet.rollMark(c, q, "foes")];
+  const saves = q => ["str", "dex", "con", "int", "wis", "cha"].map(key => sheet.rollMark(c, q, "save", key));
+  equal("nothing marked by default", [marks(p), saves(p)], [[null, null, null], [null, null, null, null, null, null]]);
+  equal("poisoned: disadvantage on attacks and checks", marks({...p, conditions: ["poisoned"]}), ["dis", "dis", null]);
+  equal("invisible and poisoned cancel on attacks", marks({...p, conditions: ["invisible", "poisoned"]}), ["even", "dis", "dis"]);
+  equal("prone foes have advantage only up close", marks({...p, conditions: ["prone"]}), ["dis", null, "near"]);
+  equal("restrained: DEX saves only", saves({...p, conditions: ["restrained"]}), [null, "dis", null, null, null, null]);
+  const down = {...p, hp: 0};
+  equal("at 0 HP STR and DEX saves fail and attacks get no mark", [saves(down).slice(0, 3), marks(down)], [["fail", "fail", null], [null, null, "adv"]]);
+  const shelled = {...p, active: ["shellDefense"]};
+  equal("shell defense: STR and CON advantage, DEX disadvantage", saves(shelled), ["adv", "dis", "adv", null, null, null]);
+  equal("exhaustion 1 marks checks", marks({...p, exhaustion: 1}), [null, "dis", null]);
+  equal("exhaustion 3 marks attacks and every save", [marks({...p, exhaustion: 3}), saves({...p, exhaustion: 3})], [["dis", "dis", null], ["dis", "dis", "dis", "dis", "dis", "dis"]]);
+  equal("exhaustion against shell defense evens STR and CON", saves({...shelled, exhaustion: 3}), ["even", "dis", "even", "dis", "dis", "dis"]);
+  equal("a failed save beats advantage", sheet.rollMark(c, {...shelled, conditions: ["stunned"]}, "save", "str"), "fail");
 }
 
 section("Hit points");
@@ -173,34 +193,52 @@ section("Undo and concentration");
 {
   const c = nawe();
   const base = play.newPlay(c);
-  equal("a change says what it was", [
-    describeChange(c, base, {...base, hp: 94}),
-    describeChange(c, base, {...base, slotsSpent: {2: [2]}}),
-    describeChange(c, base, {...base, conditions: ["poisoned"]}),
-    describeChange(c, base, {...base, spent: {layOnHands: 5}})
-  ].map(n => [n.value, n.text]), [["−12", "HP"], ["Lv 2", "slot spent"], ["Poisoned", "on"], ["−5", "Lay on Hands"]]);
   equal("the concentration DC is half the damage, at least 10", [play.concentrationDc(5), play.concentrationDc(24), play.concentrationDc(31)], [10, 12, 15]);
   fresh();
   playStore.takeDamage(10);
+  playStore.takeDamage(5);
+  playStore.undo();
+  equal("undo steps back one action", state.play.hp, 96);
   playStore.toggleCondition("poisoned");
+  playStore.toggleActive("shellDefense");
+  playStore.toggleInspiration();
+  equal("one-tap toggles leave no undo of their own", state.history.length, 1);
   playStore.undo();
-  equal("undo steps back one action", [state.play.hp, state.play.conditions], [96, []]);
+  equal("undoing earlier damage keeps them as set", [state.play.hp, state.play.conditions, state.play.active, state.play.inspiration],
+    [106, ["poisoned"], ["shellDefense"], true]);
+  fresh();
+  playStore.longRest();
+  playStore.toggleSlot(1, 0);
+  playStore.toggleUse("divineSense", 2);
+  playStore.setHitDiceSpent(3);
+  playStore.setDeathSaves("failures", 1);
+  equal("orbs, hit dice and death saves leave no undo either", state.history.length, 1);
   playStore.undo();
-  equal("and again", state.play.hp, 106);
+  equal("and an undo keeps them", [state.play.slotsSpent[1], state.play.spent.divineSense, state.play.hitDiceSpent, state.play.deathSaves.failures],
+    [[0], [2], 3, 1]);
+  fresh();
+  playStore.setHitDiceSpent(4);
+  playStore.longRest();
+  playStore.setHitDiceSpent(state.play.hitDiceSpent + 1);
+  playStore.undo();
+  equal("a die spent after a rest still counts when the rest is undone", state.play.hitDiceSpent, 5);
+  fresh();
+  playStore.spendSlot(2);
+  equal("a smite can still be undone", state.history.length, 1);
   [1, 2, 3, 4, 5, 6, 7].forEach(() => playStore.takeDamage(1));
   equal("it remembers the last five", state.history.length, 5);
   fresh();
   playStore.toggleCondition("concentrating");
   playStore.adjustHp(-24);
-  equal("damage while concentrating asks for a save", [state.notice.kind, state.notice.damage], ["concentration", 24]);
+  equal("damage while concentrating asks for a save", state.notice.damage, 24);
   playStore.adjustHp(-1);
   equal("a quick second tap is the same hit", state.notice.damage, 25);
   playStore.loseConcentration();
-  equal("losing it drops Concentrating", [state.play.conditions.includes("concentrating"), state.notice.kind], [false, "change"]);
+  equal("losing it drops Concentrating and the prompt", [state.play.conditions.includes("concentrating"), state.notice], [false, null]);
   fresh();
   playStore.toggleCondition("concentrating");
   playStore.takeDamage(200);
-  equal("no save to ask for at 0 HP", state.notice.kind, "change");
+  equal("no save to ask for at 0 HP", state.notice, null);
 }
 
 section("Store edits");

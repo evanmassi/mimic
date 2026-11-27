@@ -1,13 +1,13 @@
-import {DEATH_SAVE_COUNT} from "../data/constants.js";
+import {DEATH_SAVE_COUNT, FOES_LABEL} from "../data/constants.js";
 import {state} from "../store/state.js";
 import {setHitDiceSpent, setDeathSaves} from "../store/play.js";
 import {setField} from "../store/character.js";
-import {armorClass, initiative, speed} from "../rules/sheet.js";
+import {armorClass, initiative, speed, rollMark} from "../rules/sheet.js";
 import {signed} from "../rules/format.js";
 import {makeDots} from "../ui/dots.js";
 import {makeFrame} from "../ui/frame.js";
 import {el} from "./dom.js";
-import {statBox, editableField} from "./controls.js";
+import {statBox, editableField, diceMark} from "./controls.js";
 
 function baseBox(className, field, shownValue, label, isChanged){
   if(state.isEditing){
@@ -24,11 +24,18 @@ export function renderCombat(main){
   const {character, play} = state;
   const ac = armorClass(character, play);
   const moves = speed(character, play);
+  const acBox = baseBox("combat-ac", "armorClass", ac, "Armor class", ac !== character.armorClass);
+  const foes = rollMark(character, play, "foes");
+  if(foes){
+    const note = el("span", "foes-note", FOES_LABEL[foes]);
+    note.dataset.roll = foes;
+    acBox.appendChild(note);
+  }
+  const initiativeBox = statBox("combat-box", signed(initiative(character)), "Initiative");
+  const check = rollMark(character, play, "check");
+  if(check) initiativeBox.appendChild(diceMark(check));
   const row = el("section", "combat");
-  row.append(
-    baseBox("combat-ac", "armorClass", ac, "Armor class", ac !== character.armorClass),
-    statBox("combat-box", signed(initiative(character)), "Initiative"),
-    baseBox("combat-box", "speed", moves + "ft", "Speed", moves !== character.speed));
+  row.append(acBox, initiativeBox, baseBox("combat-box", "speed", moves + "ft", "Speed", moves !== character.speed));
 
   const hitDice = makeFrame(el("section", "vital"), "Hit dice");
   const left = character.level - play.hitDiceSpent;

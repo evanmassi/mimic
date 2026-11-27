@@ -12,12 +12,14 @@ Open it at **https://evanmassi.github.io/mimic/**
 - Shows conditions, exhaustion and spell slots at the top too. Death saves appear when you drop to 0.
 - Works out modifiers, saves, skills, passive perception, attack bonuses and spell DC from your scores and level.
 - Things that change every session are always one tap: coins, equipment, languages, attacks, spells, max HP.
-  Things that only change on level-up (scores, proficiencies, class details) sit behind the Edit button so a stray
+  Things that only change on level-up (scores, proficiencies, class details) sit behind the Edit quill so a stray
   tap can't change them.
 - Spell slots are glowing mana orbs you tap to spend or get back, each one on its own.
 - Tracks features: uses that come back on a rest, pools like Lay on Hands, switches like a Tortle's Shell Defense
   that change your AC and speed, and Divine Smite buttons that spend a slot.
 - Short and long rests bring back what they should.
+- Undo, at the top, takes back the last few changes that are hard to redo by hand: damage, healing, a Smite,
+  a rest. Taps you can simply tap again, like conditions and orbs, don't need it.
 - Has a spellbook of nearly 2,000 openly licensed spells (both SRDs plus third-party and homebrew books, each
   labeled). Tap a spell to read it, pick which version you use, swap it for another, or add new ones. Spells from
   books that aren't openly licensed can be added by name, with your own text.

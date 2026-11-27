@@ -17,7 +17,7 @@ button{font:inherit;color:inherit}
   --dot:15px;
 }
 .hud-top{display:flex;align-items:center;gap:8px}
-.hud-top>.btn{padding:6px 10px}
+.hud-tools{display:flex;align-items:center;gap:2px;flex:none;margin-left:2px;padding-left:6px;border-left:1px solid var(--ink-faint)}
 .hud-name{flex:1;min-width:0;font:var(--size-heading)/1.1 var(--font-heading);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hud-ac,.hud-speed{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:40px}
 .hud-ac{height:44px;background:var(--shape-shield) center/100% 100% no-repeat;padding-bottom:4px}
@@ -150,10 +150,6 @@ button{font:inherit;color:inherit}
   box-shadow:inset 0 0 0 2px var(--paper-light),inset 0 0 0 3px var(--ink-faint),0 2px 3px var(--shadow-hud);
 }
 .notice[data-motion="in"]{animation:notice-in 220ms ease-out}
-.notice-text{flex:1;min-width:0;display:flex;align-items:baseline;gap:5px}
-.notice-value{font:700 16px var(--font-value);color:var(--ink)}
-.notice-value[data-tone="down"]{color:var(--blood)}
-.notice-value[data-tone="up"]{color:var(--verdant)}
 .notice-label{font:var(--size-small) var(--font-label);letter-spacing:var(--track-label);color:var(--ink-soft)}
 .notice .btn{
   flex:none;border:none;box-shadow:none;background:none;border-radius:4px;color:var(--ink-soft);
@@ -161,8 +157,6 @@ button{font:inherit;color:inherit}
 }
 .notice .btn:active{background:color-mix(in oklab,var(--ink) 8%,transparent)}
 .notice .btn[data-tone="mana"]{color:var(--mana-deep)}
-.notice-undo::before{content:"↶ ";font:15px/1 var(--font-value)}
-.notice-undo[data-size="compact"]::before{content:"↶";font-size:17px}
 .notice-stamp{
   flex:none;width:40px;height:40px;margin:4px 2px 4px -2px;border-radius:50%;rotate:-6deg;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -285,6 +279,19 @@ button.pill{cursor:pointer}
 .prof-value{width:32px;text-align:right;font:700 15px var(--font-value);border-bottom:1.5px solid var(--ink)}
 .prof-name{font:15px var(--font-body)}
 .prof-note{margin-left:auto;font:var(--size-label) var(--font-label);letter-spacing:var(--track-label);color:var(--ink-soft)}
+.dice-mark{flex:none;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;font:9px/1 var(--font-label);letter-spacing:.1em;color:var(--roll)}
+.dice-mark::before{content:"";width:22px;height:16px;flex:none;background:currentColor;mask:var(--dice) center/contain no-repeat}
+.dice-mark[data-roll="adv"]{--roll:var(--verdant);--dice:var(--glyph-dice-adv)}
+.dice-mark[data-roll="dis"]{--roll:var(--blood);--dice:var(--glyph-dice-dis)}
+.dice-mark[data-roll="fail"]{--roll:var(--blood-deep);--dice:var(--glyph-dice-fail)}
+.dice-mark[data-roll="even"]{--roll:var(--ink-soft);--dice:var(--glyph-dice-even)}
+.dice-mark[data-roll="fail"]::before,.dice-mark[data-roll="even"]::before{width:16px}
+.prof .dice-mark{margin-left:4px}
+.combat-box .dice-mark,.spell-stat .dice-mark{margin-top:4px}
+.foes-note{max-width:80px;margin-top:3px;font:8px/1.15 var(--font-label);letter-spacing:.08em;text-align:center}
+.foes-note[data-roll="adv"],.foes-note[data-roll="near"]{color:var(--blood)}
+.foes-note[data-roll="dis"]{color:var(--verdant)}
+.foes-note[data-roll="even"]{color:var(--ink-soft)}
 .frame[data-seal="lit"]{border-color:color-mix(in oklab,var(--holy-deep) 75%,var(--ink));box-shadow:var(--inner-line),0 0 8px var(--holy-haze)}
 .frame[data-seal="lit"]::before{
   content:"";position:absolute;inset:-3px;border-radius:calc(var(--radius-box) + 3px);pointer-events:none;
@@ -308,6 +315,10 @@ button.pill{cursor:pointer}
 .attack-cell{padding:6px;font:700 15px var(--font-value);border-radius:3px}
 .attack .attack-cell{background:color-mix(in oklab,var(--paper-deep) 70%,transparent)}
 .attack-head .attack-cell{padding:0 6px;font:9px var(--font-label);letter-spacing:.1em;color:var(--ink-soft)}
+.attack-head .attack-cell{display:flex;align-items:center}
+.attack-head .dice-mark{margin-left:auto;gap:3px;font-size:8px}
+.attack-head .dice-mark::before{width:17px;height:12px}
+.attack-head .dice-mark[data-roll="fail"]::before,.attack-head .dice-mark[data-roll="even"]::before{width:12px}
 
 .spell-head{display:flex;justify-content:space-around;margin-bottom:6px}
 .spell-stat{display:flex;flex-direction:column;align-items:center}
@@ -326,6 +337,8 @@ button.pill{cursor:pointer}
 .feature:last-of-type{border-bottom:none}
 .feature[data-active="on"]{margin:0 -6px;padding:10px 6px;border-radius:6px;background:color-mix(in oklab,var(--arcane) 12%,transparent)}
 .feature-name{margin:0;font:var(--size-heading)/1.1 var(--font-heading)}
+.feature-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.feature-head .tracker{margin-top:0}
 .feature-text{margin:5px 0 0;font:var(--size-body)/1.4 var(--font-body)}
 .tracker{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:6px}
 .tracker .btn{padding:5px 9px}

@@ -1,6 +1,13 @@
+import {ROLL_LABEL} from "../data/constants.js";
 import {makeButton} from "../ui/button.js";
 import {makeField} from "../ui/field.js";
 import {el} from "./dom.js";
+
+export function diceMark(roll){
+  const mark = el("span", "dice-mark", ROLL_LABEL[roll]);
+  mark.dataset.roll = roll;
+  return mark;
+}
 
 export function actionButton(label, options, onPress){
   const button = makeButton(el("button"), Object.assign({label}, options));

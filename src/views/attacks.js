@@ -1,10 +1,10 @@
 import {state, setOpenAttack} from "../store/state.js";
 import {setAttack, cycleAttackAbility, addAttack, removeAttack} from "../store/character.js";
-import {attackBonus, damageBonus} from "../rules/sheet.js";
+import {attackBonus, damageBonus, rollMark} from "../rules/sheet.js";
 import {signed} from "../rules/format.js";
 import {makeFrame} from "../ui/frame.js";
 import {el} from "./dom.js";
-import {actionButton, editableField} from "./controls.js";
+import {actionButton, editableField, diceMark} from "./controls.js";
 
 function labeled(label, field){
   const holder = el("label", "attack-field");
@@ -44,7 +44,10 @@ export function renderAttacks(main){
   const attacks = state.character.attacks;
   const box = makeFrame(el("section"), "Attacks & spellcasting · tap one to change it");
   const head = el("div", "attack-head");
-  ["Name", "Atk bonus", "Damage/type"].forEach(text => head.appendChild(el("span", "attack-cell", text)));
+  const nameHead = el("span", "attack-cell", "Name");
+  const roll = rollMark(state.character, state.play, "attack");
+  if(roll) nameHead.appendChild(diceMark(roll));
+  head.append(nameHead, el("span", "attack-cell", "Atk bonus"), el("span", "attack-cell", "Damage/type"));
   box.appendChild(head);
   attacks.forEach((attack, index) => box.appendChild(state.openAttack === index ? attackEditor(attack, index) : attackRow(attack, index)));
   box.appendChild(actionButton("+ Add an attack", {}, () => {

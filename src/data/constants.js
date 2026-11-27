@@ -9,7 +9,6 @@ export const HP_DRAG_TAP_PX = 6;
 export const DRAWER_CLOSE_MS = 220;
 export const TRAY_CLOSE_MS = 320;
 export const UNDO_DEPTH = 5;
-export const NOTICE_MS = 6000;
 export const HIT_GROUP_MS = 2000;
 export const CONCENTRATION_MIN_DC = 10;
 export const DEATH_SAVE_COUNT = 3;
@@ -32,3 +31,5 @@ export const NEW_ATTACK = {name: "New attack", ability: "str", magicBonus: 0, da
 
 export const COINS = ["cp", "sp", "ep", "gp", "pp"];
 export const RECHARGE_LABEL = {short: "short rest", long: "long rest"};
+export const ROLL_LABEL = {adv: "Adv.", dis: "Disadv.", fail: "Fail", even: "Straight"};
+export const FOES_LABEL = {adv: "Foes adv.", dis: "Foes disadv.", even: "Foes roll straight", near: "Near foes adv."};

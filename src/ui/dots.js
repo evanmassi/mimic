@@ -41,6 +41,8 @@ function react(feel, target, isFilling, isComplete){
   buzz(isComplete ? feel.buzzComplete : isFilling ? feel.buzzFill : feel.buzzEmpty);
 }
 
+export const playDot = (feelName, target, isFilling) => react(FEELS[feelName], target, isFilling, false);
+
 export function makeDots(count, filled, onSet, feelName = "plain"){
   const feel = FEELS[feelName];
   const row = dotRow(feelName);

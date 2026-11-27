@@ -7,6 +7,7 @@ import {makeFrame} from "../ui/frame.js";
 import {spawnFx} from "../ui/fx.js";
 import {el} from "./dom.js";
 import {actionButton} from "./controls.js";
+import {playSlotSpent} from "./hud.js";
 
 const poolSpent = feature => state.play.spent[feature.id] || 0;
 
@@ -64,7 +65,7 @@ function slotSpendTracker(feature){
   Object.keys(state.character.spellcasting.slots).forEach(level => {
     const button = actionButton(`Lv ${level} · ${slotDice(feature.tracker, Number(level))}`, {tone: "mana"}, () => {
       spawnFx("holy", button.getBoundingClientRect(), {tone: "gold"});
-      spendSlot(level);
+      playSlotSpent(level, spendSlot(level));
     });
     button.disabled = slotsLeft(state.character, state.play, level) === 0;
     row.appendChild(button);
@@ -79,8 +80,16 @@ export function renderFeatures(main){
   state.character.features.forEach(feature => {
     const item = el("div", "feature");
     item.dataset.active = state.play.active.includes(feature.id) ? "on" : "off";
-    item.appendChild(el("h3", "feature-name", feature.name));
-    if(feature.tracker) item.appendChild(TRACKERS[feature.tracker.kind](feature));
+    const name = el("h3", "feature-name", feature.name);
+    const tracker = feature.tracker ? TRACKERS[feature.tracker.kind](feature) : null;
+    if(tracker && feature.tracker.kind === "uses"){
+      const head = el("div", "feature-head");
+      head.append(name, tracker);
+      item.appendChild(head);
+    }else{
+      item.appendChild(name);
+      if(tracker) item.appendChild(tracker);
+    }
     item.appendChild(el("p", "feature-text", feature.text));
     box.appendChild(item);
   });

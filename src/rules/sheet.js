@@ -1,5 +1,6 @@
-import {SKILLS} from "../data/abilities.js";
-import {CONDITIONS, EXHAUSTION_SPEED_HALVED, EXHAUSTION_HP_HALVED, EXHAUSTION_SPEED_ZERO} from "../data/conditions.js";
+import {ABILITIES, SKILLS} from "../data/abilities.js";
+import {CONDITIONS, EXHAUSTION_CHECKS_DISADVANTAGED, EXHAUSTION_SPEED_HALVED, EXHAUSTION_ROLLS_DISADVANTAGED, EXHAUSTION_HP_HALVED,
+  EXHAUSTION_SPEED_ZERO} from "../data/conditions.js";
 
 export const modifier = score => Math.floor((score - 10) / 2);
 export const proficiencyBonus = level => Math.ceil(level / 4) + 1;
@@ -64,6 +65,32 @@ export function saveSeals(character, play){
     return {label: saveBonus.label, amount: "min" in saveBonus ? Math.max(saveBonus.min, amount) : amount,
       isLit: !whileConscious || isConscious};
   });
+}
+
+const ROLL_PICKS = {
+  attack: rolls => rolls.attack,
+  check: rolls => rolls.check,
+  foes: rolls => rolls.foes,
+  save: (rolls, ability) => rolls.saves && rolls.saves[ability]
+};
+
+const exhaustionRolls = level => [
+  level >= EXHAUSTION_CHECKS_DISADVANTAGED ? {check: "dis"} : null,
+  level >= EXHAUSTION_ROLLS_DISADVANTAGED ? {attack: "dis", saves: Object.fromEntries(ABILITIES.map(({key}) => [key, "dis"]))} : null
+].filter(Boolean);
+
+const rollSources = (character, play) => [...activeConditions(character, play), ...activeEffects(character, play)]
+  .map(source => source.rolls).filter(Boolean).concat(exhaustionRolls(play.exhaustion));
+
+export function rollMark(character, play, kind, ability){
+  if(kind === "attack" && activeConditions(character, play).some(condition => condition.isIncapacitated)) return null;
+  const marks = rollSources(character, play).map(rolls => ROLL_PICKS[kind](rolls, ability)).filter(Boolean);
+  if(marks.includes("fail")) return "fail";
+  const isAdvantaged = marks.some(mark => mark === "adv" || mark === "near");
+  const isDisadvantaged = marks.includes("dis");
+  if(isAdvantaged && isDisadvantaged) return "even";
+  if(isAdvantaged) return marks.includes("adv") ? "adv" : "near";
+  return isDisadvantaged ? "dis" : null;
 }
 
 export function speed(character, play){

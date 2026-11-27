@@ -1,36 +1,48 @@
-import {UNDO_DEPTH, HIT_GROUP_MS} from "../data/constants.js";
+import {UNDO_DEPTH, HIT_GROUP_MS, DEATH_SAVE_COUNT} from "../data/constants.js";
 import {state, changes, persistPlay} from "./state.js";
 import {adjusted, damaged, healed, withTempHp, afterShortRest, afterLongRest} from "../rules/play.js";
-import {describeChange} from "../rules/changes.js";
-import {toggled} from "../rules/lists.js";
+import {withItem} from "../rules/lists.js";
 import {hpMax, slotsLeft, formulaValue, activeConditions} from "../rules/sheet.js";
 
-let noticeId = 0;
+let promptId = 0;
 
 function concentrationNotice(before, next){
   const lost = before.hp + before.tempHp - next.hp - next.tempHp;
   const isConcentrating = activeConditions(state.character, before).some(({key}) => key === "concentrating");
   if(lost <= 0 || next.hp === 0 || !isConcentrating) return null;
   const now = Date.now();
-  const pending = state.notice && state.notice.kind === "concentration" && now - state.notice.at < HIT_GROUP_MS ? state.notice : null;
-  return {kind: "concentration", id: pending ? pending.id : ++noticeId, damage: lost + (pending ? pending.damage : 0), at: now};
+  const pending = state.notice && now - state.notice.at < HIT_GROUP_MS ? state.notice : null;
+  return {id: pending ? pending.id : ++promptId, damage: lost + (pending ? pending.damage : 0), at: now};
 }
 
-function commit(next, note = null){
+function commit(next){
   const before = state.play;
-  state.history = [...state.history, {play: before, note: note || describeChange(state.character, before, next)}].slice(-UNDO_DEPTH);
-  state.notice = concentrationNotice(before, next) || {kind: "change", id: ++noticeId};
+  state.history = [...state.history, before].slice(-UNDO_DEPTH);
+  state.notice = concentrationNotice(before, next);
   state.play = next;
   persistPlay();
   changes.notify();
+}
+
+// PITFALL: a quiet edit rewrites the undo snapshots too, or undoing an earlier change would quietly revert it.
+function quietly(change){
+  state.play = change(state.play);
+  state.history = state.history.map(change);
+  persistPlay();
+  changes.notify();
+}
+
+function flipQuietly(field, item){
+  const isIn = !state.play[field].includes(item);
+  quietly(play => ({...play, [field]: withItem(play[field], item, isIn)}));
 }
 
 export function undo(){
   const last = state.history[state.history.length - 1];
   if(!last) return;
   state.history = state.history.slice(0, -1);
-  state.notice = state.history.length ? {kind: "change", id: ++noticeId} : null;
-  state.play = last.play;
+  state.notice = null;
+  state.play = last;
   persistPlay();
   changes.notify();
 }
@@ -53,31 +65,47 @@ export const takeDamage = amount => commit(damaged(state.play, amount));
 export const heal = amount => commit(healed(state.play, amount, currentMax()));
 export const addTempHp = amount => commit(withTempHp(state.play, amount));
 
-export const toggleCondition = key => edit({conditions: toggled(state.play.conditions, key)});
-export const toggleActive = id => edit({active: toggled(state.play.active, id)});
-export const toggleInspiration = () => edit({inspiration: !state.play.inspiration});
+export const toggleCondition = key => flipQuietly("conditions", key);
+export const toggleActive = id => flipQuietly("active", id);
+
+export function toggleInspiration(){
+  const inspiration = !state.play.inspiration;
+  quietly(play => ({...play, inspiration}));
+}
 
 export function setExhaustion(level){
   const next = {...state.play, exhaustion: level};
   commit({...next, hp: Math.min(next.hp, hpMax(state.character, next))});
 }
 
-export const setDeathSaves = (kind, count) => edit({deathSaves: {...state.play.deathSaves, [kind]: count}});
-export const setHitDiceSpent = count => edit({hitDiceSpent: count});
-const setSpent = (id, spent) => edit({spent: {...state.play.spent, [id]: spent}});
+const within = (value, max) => Math.min(max, Math.max(0, value));
 
-export const toggleUse = (id, index) => setSpent(id, toggled(state.play.spent[id] || [], index));
+export function setDeathSaves(kind, count){
+  const step = count - state.play.deathSaves[kind];
+  quietly(play => ({...play, deathSaves: {...play.deathSaves, [kind]: within(play.deathSaves[kind] + step, DEATH_SAVE_COUNT)}}));
+}
+
+export function setHitDiceSpent(count){
+  const step = count - state.play.hitDiceSpent;
+  quietly(play => ({...play, hitDiceSpent: within(play.hitDiceSpent + step, state.character.level)}));
+}
+
+function flipOrbQuietly(field, key, index){
+  const isSpent = !(state.play[field][key] || []).includes(index);
+  quietly(play => ({...play, [field]: {...play[field], [key]: withItem(play[field][key] || [], index, isSpent)}}));
+}
+
+export const toggleUse = (id, index) => flipOrbQuietly("spent", id, index);
+export const toggleSlot = (level, index) => flipOrbQuietly("slotsSpent", level, index);
 
 const spentSlots = level => state.play.slotsSpent[level] || [];
-const setSpentSlots = (level, spent) => edit({slotsSpent: {...state.play.slotsSpent, [level]: spent}});
-
-export const toggleSlot = (level, index) => setSpentSlots(level, toggled(spentSlots(level), index));
 
 export function spendSlot(level){
-  if(slotsLeft(state.character, state.play, level) === 0) return;
+  if(slotsLeft(state.character, state.play, level) === 0) return null;
   const total = state.character.spellcasting.slots[level];
   const index = Array.from({length: total}, (_, at) => total - 1 - at).find(at => !spentSlots(level).includes(at));
-  setSpentSlots(level, spentSlots(level).concat(index));
+  edit({slotsSpent: {...state.play.slotsSpent, [level]: spentSlots(level).concat(index)}});
+  return index;
 }
 
 export function spendPool(feature, amount, isOnSelf){
@@ -88,8 +116,8 @@ export function spendPool(feature, amount, isOnSelf){
 }
 
 export function restorePool(feature, amount){
-  setSpent(feature.id, Math.max(0, (state.play.spent[feature.id] || 0) - amount));
+  edit({spent: {...state.play.spent, [feature.id]: Math.max(0, (state.play.spent[feature.id] || 0) - amount)}});
 }
 
-export const shortRest = () => commit(afterShortRest(state.character, state.play), {value: "Short rest", text: "taken", tone: null});
-export const longRest = () => commit(afterLongRest(state.character, state.play), {value: "Long rest", text: "taken", tone: null});
+export const shortRest = () => commit(afterShortRest(state.character, state.play));
+export const longRest = () => commit(afterLongRest(state.character, state.play));

@@ -25,7 +25,7 @@ function fieldBox({field, label, kind, prefix = ""}){
 
 export function renderIdentity(main){
   const banner = el("section", "banner");
-  if(state.isEditing) banner.appendChild(el("p", "edit-hint", "Editing your sheet. Everything recalculates when you tap Done."));
+  if(state.isEditing) banner.appendChild(el("p", "edit-hint", "Editing your sheet. Everything recalculates when you tap the quill again."));
   banner.append(
     state.isEditing ? editableField("text", state.character.name, name => setField("name", name), "Character name") : el("b", "banner-name", state.character.name),
     el("span", "banner-caption", "Character name"));

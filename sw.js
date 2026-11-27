@@ -12,7 +12,6 @@ const ASSETS = [
   "./src/data/spellSources.js",
   "./src/data/spells.js",
   "./src/main.js",
-  "./src/rules/changes.js",
   "./src/rules/format.js",
   "./src/rules/lists.js",
   "./src/rules/markdown.js",
